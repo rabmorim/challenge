@@ -1,0 +1,62 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "jsx-a11y", "unicorn", "oxc", "import", "promise"],
+  "env": {
+    "browser": true,
+    "es2024": true
+  },
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "warn",
+    "pedantic": "off"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "typescript/consistent-type-imports": "error",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error",
+    "jsx-a11y/control-has-associated-label": [
+      "error",
+      {
+        "ignoreElements": [
+          "audio",
+          "canvas",
+          "embed",
+          "input",
+          "textarea",
+          "tr",
+          "td",
+          "th",
+          "video"
+        ]
+      }
+    ],
+    "eqeqeq": "error",
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+
+    "react/react-in-jsx-scope": "off",
+    "import/no-unassigned-import": "off",
+    "import/no-named-as-default-member": "off",
+    "promise/no-promise-in-callback": "off"
+  },
+  "ignorePatterns": [
+    "dist",
+    "coverage",
+    "playwright-report",
+    "test-results",
+    "lighthouse-report",
+    "src/routeTree.gen.ts",
+    "public/mockServiceWorker.js"
+  ],
+  "overrides": [
+    {
+      "files": ["scripts/**/*.mjs", "e2e/**/*.ts", "playwright.config.ts", "vite.config.ts"],
+      "env": { "node": true, "browser": false },
+      "rules": {
+        "no-console": "off",
+        "eslint/no-await-in-loop": "off"
+      }
+    }
+  ]
+}

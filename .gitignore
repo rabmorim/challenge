@@ -1,0 +1,54 @@
+# Dependências
+node_modules/
+.pnpm-store/
+
+# Build
+dist/
+dist-ssr/
+build/
+*.local
+
+# Testes / relatórios
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+lighthouse-report/
+
+# Ambiente
+# Regra geral: nenhum .env entra no repositorio.
+.env
+.env.*
+# Excecoes: configuracao do app sem segredo algum (o backend e simulado) que
+# precisa existir no checkout limpo e no build de demonstracao da Vercel.
+!.env.example
+!.env.development
+!.env.production
+
+# Editores / SO
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Cache de ferramentas
+.cache/
+.temp/
+.turbo/
+.vercel/
+.tanstack/

@@ -1,0 +1,398 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+/* ==========================================================================
+   KURIO — tema (Tailwind v4, config CSS-first)
+   Cores em OKLCH, convertidas dos hexadecimais confirmados no Figma.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Fonte self-hosted — Roboto Mono, a unica familia usada no layout.
+   Arquivo variavel do Google Fonts: um woff2 por subset cobre os pesos 100-700.
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Roboto Mono';
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  src: url('/fonts/roboto-mono-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Roboto Mono';
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  src: url('/fonts/roboto-mono-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308,
+    U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* O layout do KURIO e dark-only: nao ha frame claro no Figma.
+   A variante `dark:` continua ativa (html.dark) para os primitivos shadcn. */
+@custom-variant dark (&:is(.dark *, .dark));
+
+/* --------------------------------------------------------------------------
+   Tokens brutos do design + contrato de tokens do shadcn/ui.
+   -------------------------------------------------------------------------- */
+:root,
+.dark {
+  color-scheme: dark;
+
+  /* Paleta KURIO — hex de origem no comentario ao lado */
+  --kurio-bg: oklch(16.73% 0.0136 44.32); /* #140D0A — fundo da pagina */
+  --kurio-surface: oklch(21.73% 0.0243 36.6); /* #241612 — card / sidebar */
+  --kurio-text: oklch(95.96% 0.0091 78.28); /* #F5F1EB — texto primario */
+  --kurio-bright: oklch(96.52% 0.0101 82.8); /* #F7F3EC — linha de boas-vindas do heroi */
+  --kurio-tan: oklch(77.94% 0.0612 74.2); /* #CFB28C — texto muted / subtitulos */
+  --kurio-accent: oklch(69.48% 0.1177 59.7); /* #D28A4C — CTA, precos ETH, foco */
+  --kurio-link: oklch(75.26% 0.1261 61.21); /* #E89B55 — links de texto */
+  --kurio-icon-muted: oklch(68.35% 0.0755 78.43); /* #B39463 — icone de senha */
+  --kurio-border: oklch(29.01% 0.0466 40.34); /* #3F2319 — borda de input padrao */
+  --kurio-divider: oklch(31.62% 0.0449 58.26); /* #432C1A — filete das secoes (carrinho, resumo) */
+  --kurio-band: oklch(27.54% 0.0455 59.98); /* #38220F — faixa da marca no rodape */
+  --kurio-surface-lift: oklch(25.15% 0.032 44.79); /* #2F1D15 — ponta clara do degrade das superficies do frame de 414 */
+  --kurio-shade: oklch(12.75% 0.0107 54.77); /* #0A0604 — sombra da barra de atalhos */
+
+  /* Contrato shadcn/ui mapeado sobre a paleta KURIO */
+  --background: var(--kurio-bg);
+  --foreground: var(--kurio-text);
+  --card: var(--kurio-surface);
+  --card-foreground: var(--kurio-text);
+  --popover: var(--kurio-surface);
+  --popover-foreground: var(--kurio-text);
+  --primary: var(--kurio-accent);
+  --primary-foreground: var(--kurio-bg);
+  --secondary: var(--kurio-surface);
+  --secondary-foreground: var(--kurio-text);
+  --muted: var(--kurio-surface);
+  --muted-foreground: var(--kurio-tan);
+  --accent: var(--kurio-accent);
+  --accent-foreground: var(--kurio-bg);
+  --destructive: oklch(63.5% 0.2 25.5);
+  --destructive-foreground: var(--kurio-text);
+  --success: oklch(70% 0.14 152);
+  --success-foreground: var(--kurio-bg);
+  --border: var(--kurio-border);
+  --input: var(--kurio-border);
+  --ring: var(--kurio-accent);
+
+  /* Sidebar do catalogo — mesma superficie dos cards */
+  --sidebar: var(--kurio-surface);
+  --sidebar-foreground: var(--kurio-text);
+  --sidebar-primary: var(--kurio-accent);
+  --sidebar-primary-foreground: var(--kurio-bg);
+  --sidebar-accent: var(--kurio-accent);
+  --sidebar-accent-foreground: var(--kurio-bg);
+  --sidebar-border: var(--kurio-border);
+  --sidebar-ring: var(--kurio-accent);
+
+  /* Raio base do shadcn — botoes/inputs sao 5px  */
+  --radius: 5px;
+}
+
+/* --------------------------------------------------------------------------
+   Exposicao dos tokens ao Tailwind (utilitarios `bg-*`, `text-*`, `rounded-*`...).
+   -------------------------------------------------------------------------- */
+@theme inline {
+  /* Tipografia — familia unica */
+  --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: var(--font-mono);
+  --font-heading: var(--font-mono);
+
+  /* Escala tipografica observada no Figma */
+  --text-hero: 43px;
+  --text-hero--line-height: 70px;
+  --text-hero--font-weight: 700;
+
+  /* Cabecalho do painel de autenticacao (abas "Entrar | Criar conta"). */
+  --text-title: 20px;
+  --text-title--line-height: 100%;
+  --text-title--font-weight: 700;
+
+  --text-heading: 28px;
+  --text-heading--line-height: 100%;
+  --text-heading--font-weight: 700;
+
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 100%;
+  --text-body-lg--font-weight: 400;
+
+  /* Linha da sidebar de filtros — rotulo e contagem (Figma: 15/40). */
+  --text-facet: 15px;
+  --text-facet--line-height: 40px;
+  --text-facet--font-weight: 400;
+
+  --text-body: 14px;
+  --text-body--line-height: 24px;
+  --text-body--font-weight: 400;
+
+  /* Legenda dos cartoes editoriais — data, resumo e "Ler mais" (Figma: 12/18). */
+  --text-caption: 12px;
+  --text-caption--line-height: 18px;
+  --text-caption--font-weight: 400;
+
+  /* Corpo do painel de autenticacao (Figma: 13/16). */
+  --text-modal: 13px;
+  --text-modal--line-height: 16px;
+  --text-modal--font-weight: 400;
+
+  --text-label: 14px;
+  --text-label--line-height: 100%;
+  --text-label--font-weight: 700;
+  --text-label--letter-spacing: 0.1em;
+
+  /* ----------------------------------------------------------------------
+     Escala do frame de 414 (celular). O frame mobile e desenhado em outra
+     grade tipografica que a de 1440 — as medidas abaixo saem dele.
+     ---------------------------------------------------------------------- */
+
+  /* Linha de boas-vindas do heroi mobile (Figma: 12/16 medium). */
+  --text-eyebrow: 12px;
+  --text-eyebrow--line-height: 16px;
+  --text-eyebrow--font-weight: 500;
+
+  /* Titulo do heroi mobile (Figma: 18/29 bold). */
+  --text-hero-mobile: 18px;
+  --text-hero-mobile--line-height: 29px;
+  --text-hero-mobile--font-weight: 700;
+
+  /* Descricao do heroi mobile (Figma: 12/18). */
+  --text-hero-body: 12px;
+  --text-hero-body--line-height: 18px;
+  --text-hero-body--font-weight: 400;
+
+  /* Chamada "EXPLORAR" do heroi mobile (Figma: 12/14 bold). */
+  --text-cta: 12px;
+  --text-cta--line-height: 14px;
+  --text-cta--font-weight: 700;
+
+  /* Campo de busca do topo do celular (Figma: 14/16 bold). */
+  --text-field: 14px;
+  --text-field--line-height: 16px;
+  --text-field--font-weight: 700;
+
+  /* Nome e preco sob a arte no card mobile (Figma: 14/18). */
+  --text-card-mobile: 14px;
+  --text-card-mobile--line-height: 18px;
+  --text-card-mobile--font-weight: 400;
+
+  --tracking-brand: 0.1em;
+
+  /* Cores semanticas KURIO (uso direto: `text-tan`, `text-link`...) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--kurio-surface);
+  --color-surface-lift: var(--kurio-surface-lift);
+  --color-bright: var(--kurio-bright);
+  --color-band: var(--kurio-band);
+  --color-divider: var(--kurio-divider);
+  --color-tan: var(--kurio-tan);
+  --color-link: var(--kurio-link);
+  --color-icon-muted: var(--kurio-icon-muted);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Raios: 5px controles · 8px paineis · 15px card de NFT.
+     A escala do shadcn e achatada em 5px para que `rounded-md`/`rounded-lg`
+     dos primitivos caiam no valor de controle do design. */
+  --radius-control: 5px;
+  --radius-button: 6px;
+  --radius-panel: 8px;
+  --radius-card: 15px;
+  /* Raios do frame de 414: campo de busca, heroi, botao de filtro, arte e card. */
+  --radius-field: 10px;
+  --radius-hero: 12px;
+  --radius-filter: 14px;
+  --radius-media: 16px;
+  --radius-card-mobile: 20px;
+  --radius-xs: 5px;
+  --radius-sm: 5px;
+  --radius-md: 5px;
+  --radius-lg: 5px;
+  --radius-xl: 8px;
+  --radius-2xl: 15px;
+  --radius-3xl: 15px;
+
+  /* Frame da pagina */
+  --container-page: 1200px;
+  --spacing-page-x: 120px;
+  --spacing-section: 96px;
+}
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply font-mono;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    /* Nenhuma tela do design rola horizontalmente. */
+    overflow-x: hidden;
+  }
+
+  /* A11y: o Figma nao tem hover, mas foco visivel por teclado e obrigatorio. */
+  :focus-visible {
+    @apply outline-ring outline-2 outline-offset-2;
+  }
+
+  /* Some com o anel quando o foco veio do ponteiro, nao do teclado. */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Link de pular navegacao: invisivel ate ser alcancado pelo teclado. */
+  .skip-link:not(:focus) {
+    @apply sr-only;
+  }
+
+  .skip-link:focus {
+    @apply bg-primary text-primary-foreground rounded-control text-label fixed top-4 left-4 z-50 px-4 py-3;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Skeleton com shimmer — preserva as dimensoes do conteudo enquanto ele carrega,
+   para que a chegada dos dados nao desloque o layout.
+   -------------------------------------------------------------------------- */
+@layer components {
+  /* --------------------------------------------------------------------------
+     Preenchimentos do frame de 414. Sao degrades, e nao cores chapadas, entao
+     nao cabem em token de cor — ficam como utilitarios para o JSX continuar
+     declarativo e a medida viver em um lugar so.
+     -------------------------------------------------------------------------- */
+
+  /* Superficie dos cards do celular: #241612 -> #2F1D15 na diagonal. */
+  .surface-gradient {
+    background-image: linear-gradient(
+      135deg,
+      var(--kurio-surface) 0%,
+      var(--kurio-surface-lift) 100%
+    );
+  }
+
+  /* Mesma diagonal invertida — e assim que o cartao do heroi e pintado. */
+  .surface-gradient-lifted {
+    background-image: linear-gradient(
+      135deg,
+      var(--kurio-surface-lift) 0%,
+      var(--kurio-surface) 100%
+    );
+  }
+
+  /* Botoes de acento do celular: o acento entra translucido e fecha opaco.
+     `--accent-gradient-from` ajusta o ponto de partida (45% no filtro,
+     40% no atalho central). */
+  .accent-gradient {
+    background-image: linear-gradient(
+      135deg,
+      color-mix(in oklch, var(--kurio-accent) var(--accent-gradient-from, 45%), transparent) 0%,
+      var(--kurio-accent) 100%
+    );
+  }
+
+  /* Circulos decorativos atras do texto do heroi mobile. */
+  .hero-ellipse {
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--kurio-accent) 55%, transparent) 0%,
+      color-mix(in oklch, var(--kurio-accent) 14%, transparent) 100%
+    );
+  }
+
+  /* Faixa da barra de atalhos, com o recorte circular onde o botao central
+     encaixa. O recorte e uma mascara (e nao um pseudo-elemento pintado por
+     cima) para o conteudo da pagina aparecer atraves dele, como no frame. */
+  .mobile-nav-surface {
+    --notch-radius: 55px;
+    --notch-center-y: -15px;
+    background-color: var(--kurio-surface);
+    box-shadow: 0 0 30px 0 color-mix(in oklch, var(--kurio-shade) 45%, transparent);
+    mask-image: radial-gradient(
+      circle var(--notch-radius) at 50% var(--notch-center-y),
+      transparent var(--notch-radius),
+      #000 calc(var(--notch-radius) + 0.5px)
+    );
+    mask-repeat: no-repeat;
+  }
+
+  /* Barra fixa de compra do detalhe no frame de 414. A sombra e o unico
+     limite entre ela e a folha de informacoes, que tem a mesma superficie. */
+  .buy-bar-surface {
+    background-color: var(--kurio-surface);
+    box-shadow: 0 0 20px 0 color-mix(in oklch, var(--kurio-shade) 45%, transparent);
+  }
+
+  .skeleton {
+    @apply bg-card relative overflow-hidden;
+  }
+
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklch, var(--kurio-tan) 14%, transparent),
+      transparent
+    );
+    animation: kurio-shimmer 1.6s infinite;
+  }
+}
+
+@keyframes kurio-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Respeita a preferencia do sistema por movimento reduzido. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

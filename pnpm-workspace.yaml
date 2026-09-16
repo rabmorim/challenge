@@ -1,0 +1,5 @@
+# Aprovacao explicita de scripts de build (pnpm >= 10) — reprodutibilidade em checkout limpo.
+allowBuilds:
+  msw: true
+  esbuild: true
+  '@tailwindcss/oxide': true
