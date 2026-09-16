@@ -53,14 +53,14 @@ for (const viewport of VIEWPORTS) {
       await seedCart(page, BASELINE_CART);
       await signIn(page, USERS.ana);
 
-      // O frame de 414 divide o pagamento em duas etapas; a capturada e a do
-      // Figma ("Pagamento com carteira"), que nao traz as linhas de valor — so
-      // o total. Por isso a espera e diferente em cada composicao.
+      await page.goto('/pagamento');
+
+      // O frame de 414 nao traz as linhas de valor — so o total, e o resumo
+      // fica recolhido. Abri-lo para esperar mudaria a captura, entao a espera
+      // e diferente em cada composicao.
       if (viewport.name === 'mobile') {
-        await page.goto('/pagamento?etapa=carteira');
         await expect(page.getByTestId('checkout-mobile-total')).not.toHaveText('(-) 00.00');
       } else {
-        await page.goto('/pagamento');
         await waitForSummary(page);
       }
 

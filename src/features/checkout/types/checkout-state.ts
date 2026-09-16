@@ -1,3 +1,5 @@
+import type { RefObject } from 'react';
+
 import type { CartItem } from '@/features/cart/types/cart';
 import type { CollectorDetails, Order, OrderReceipt } from '@/features/checkout/types/order';
 import type { Quote } from '@/features/checkout/types/quote';
@@ -8,15 +10,6 @@ import type { NormalizedHttpError } from '@/types/http';
 import type { NetworkId } from '@/types/network';
 
 /** Tipos de estado do pagamento — o que os hooks entregam a interface. */
-
-/** Etapa visivel no frame de 414 (o de 1440 mostra tudo de uma vez). */
-export type CheckoutStep = 'dados' | 'carteira';
-
-/** Parametros de busca da rota de pagamento. */
-export interface CheckoutSearch {
-  /** Etapa corrente do frame de 414; ausente significa a primeira. */
-  etapa?: CheckoutStep;
-}
 
 /**
  * Estado do pedido do ponto de vista do cliente.
@@ -116,6 +109,26 @@ export interface CollectorFormApi {
    * @param fieldErrors - Mapa `campo -> mensagem` do erro normalizado.
    */
   applyServerErrors: (fieldErrors: Record<string, string>) => void;
+}
+
+/** Estado da secao recolhivel do formulario no frame de 414. */
+export interface CollectorDisclosureApi {
+  /** Secao aberta. */
+  isOpen: boolean;
+  /**
+   * Abre e fecha a secao.
+   *
+   * @param isOpen - Novo estado, vindo do `toggle` do `details`.
+   */
+  setIsOpen: (isOpen: boolean) => void;
+  /** Painel revelado — por onde o foco encontra o primeiro campo invalido. */
+  panelRef: RefObject<HTMLDivElement | null>;
+  /**
+   * Valida o formulario e revela a secao quando ha erro.
+   *
+   * @returns `true` quando o envio pode seguir.
+   */
+  ensureValid: () => boolean;
 }
 
 /**

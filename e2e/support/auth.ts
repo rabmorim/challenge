@@ -16,6 +16,47 @@ export const USERS = {
 export type SeededUser = (typeof USERS)[keyof typeof USERS];
 
 /**
+ * Largura a partir da qual o painel de autenticacao usa a composicao de 1440
+ * (abas no topo, "Criar conta" no envio). Espelha o breakpoint `sm` do
+ * Tailwind — abaixo dela vale o frame de 414.
+ */
+export const AUTH_DESKTOP_MIN_WIDTH = 640;
+
+/** Rotulo do envio do cadastro: muda com o frame ("Criar perfil" em 414). */
+export const SIGN_UP_SUBMIT = /^Criar (conta|perfil)$/;
+
+/**
+ * Diz se a pagina esta no frame de 1440.
+ *
+ * @param page - Pagina do teste.
+ * @returns `true` quando a largura do viewport usa a composicao de desktop.
+ */
+export function isDesktopViewport(page: Page): boolean {
+  return (page.viewportSize()?.width ?? 0) >= AUTH_DESKTOP_MIN_WIDTH;
+}
+
+/**
+ * Leva o painel para o formulario de cadastro pelo caminho que existe no frame.
+ *
+ * Em 1440 a troca e a aba do topo; em 414 nao ha abas — o frame joga a troca
+ * para o convite do rodape. O teste passa pelo controle visivel, e nao por um
+ * atalho de URL, porque e justamente a troca que precisa funcionar nos dois.
+ *
+ * @param page - Pagina do teste, com o painel aberto.
+ */
+export async function openSignUpForm(page: Page): Promise<void> {
+  const dialog = page.getByRole('dialog');
+
+  if (isDesktopViewport(page)) {
+    await dialog.getByRole('tab', { name: 'Criar conta' }).click();
+  } else {
+    await dialog.getByRole('button', { name: /Crie uma conta/ }).click();
+  }
+
+  await expect(dialog.getByLabel('Confirmar senha')).toBeVisible();
+}
+
+/**
  * Abre o painel de autenticacao pelo botao do header.
  *
  * @param page - Pagina do teste.
@@ -23,6 +64,20 @@ export type SeededUser = (typeof USERS)[keyof typeof USERS];
 export async function openAuthPanel(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Entrar', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
+}
+
+/**
+ * Verifica que o painel abriu no formulario de entrada.
+ *
+ * Confere o formulario, e nao a aba "Entrar": as abas so compoem o frame de
+ * 1440 — em 414 o cabecalho e um titulo. O campo de e-mail existe nos dois.
+ *
+ * @param page - Pagina do teste.
+ */
+export async function expectAuthPanelOpen(page: Page): Promise<void> {
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByLabel('E-mail')).toBeVisible();
 }
 
 /**

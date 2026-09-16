@@ -24,11 +24,16 @@ export function SignUpForm({ onAuthenticated }: AuthFormProps) {
 
   return (
     <form noValidate onSubmit={form.submit} aria-busy={form.isSubmitting} className="flex flex-col">
-      <p id={AUTH_SUBTITLE_ID} className="text-foreground text-modal text-center">
+      {/* O frame de 414 nao traz o subtitulo, mas ele e a descricao acessivel do
+          dialogo: `sr-only` o esconde sem tira-lo do DOM nem ocupar espaco. */}
+      <p
+        id={AUTH_SUBTITLE_ID}
+        className="text-foreground text-modal sr-only text-center sm:not-sr-only"
+      >
         {COPY.subtitle}
       </p>
 
-      <div className="mt-7 flex flex-col gap-3">
+      <div className="mt-7 flex flex-col gap-4 sm:gap-3">
         <FormField
           id="signup-username"
           label={COPY.usernameLabel}
@@ -93,8 +98,18 @@ export function SignUpForm({ onAuthenticated }: AuthFormProps) {
         />
       </div>
 
-      <Button type="submit" className="mt-7" disabled={form.isSubmitting}>
-        {form.isSubmitting ? COPY.submitting : COPY.submit}
+      {/* Os dois frames rotulam o envio de formas diferentes. Alternar por
+          `hidden` (e nao por opacidade) mantem o nome acessivel do botao igual
+          ao rotulo visivel: o que esta em `display: none` nao entra no calculo. */}
+      <Button type="submit" className="mt-10 py-5 sm:mt-7 sm:py-3.5" disabled={form.isSubmitting}>
+        {form.isSubmitting ? (
+          COPY.submitting
+        ) : (
+          <>
+            <span className="sm:hidden">{COPY.mobileSubmit}</span>
+            <span className="hidden sm:inline">{COPY.submit}</span>
+          </>
+        )}
       </Button>
 
       <FormStatus message={form.formError} />

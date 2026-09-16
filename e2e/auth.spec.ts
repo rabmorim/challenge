@@ -1,6 +1,14 @@
 import { expect, test } from '@playwright/test';
 
-import { openProfileFromMenu, signIn, signOut, submitLogin, USERS } from './support/auth';
+import {
+  openProfileFromMenu,
+  openSignUpForm,
+  SIGN_UP_SUBMIT,
+  signIn,
+  signOut,
+  submitLogin,
+  USERS,
+} from './support/auth';
 import { startApp } from './support/mocks';
 
 /**
@@ -17,13 +25,13 @@ test.describe('sessao e conta', () => {
     await page.getByRole('button', { name: 'Entrar', exact: true }).click();
 
     const dialog = page.getByRole('dialog');
-    await dialog.getByRole('tab', { name: 'Criar conta' }).click();
+    await openSignUpForm(page);
 
     await dialog.getByLabel('Nome de usuário').fill('nova.colecionadora');
     await dialog.getByLabel('E-mail').fill('nova@kurio.dev');
     await dialog.getByLabel('Senha', { exact: true }).fill('kurio12345');
     await dialog.getByLabel('Confirmar senha').fill('kurio12345');
-    await dialog.getByRole('button', { name: 'Criar conta' }).click();
+    await dialog.getByRole('button', { name: SIGN_UP_SUBMIT }).click();
 
     await expect(page.getByRole('button', { name: 'Minha conta' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Minha conta' })).toContainText(
@@ -36,13 +44,13 @@ test.describe('sessao e conta', () => {
     await page.getByRole('button', { name: 'Entrar', exact: true }).click();
 
     const dialog = page.getByRole('dialog');
-    await dialog.getByRole('tab', { name: 'Criar conta' }).click();
+    await openSignUpForm(page);
 
     await dialog.getByLabel('Nome de usuário').fill('outra.pessoa');
     await dialog.getByLabel('E-mail').fill(USERS.ana.email);
     await dialog.getByLabel('Senha', { exact: true }).fill('kurio12345');
     await dialog.getByLabel('Confirmar senha').fill('kurio12345');
-    await dialog.getByRole('button', { name: 'Criar conta' }).click();
+    await dialog.getByRole('button', { name: SIGN_UP_SUBMIT }).click();
 
     const emailField = dialog.getByLabel('E-mail');
     await expect(emailField).toHaveAttribute('aria-invalid', 'true');

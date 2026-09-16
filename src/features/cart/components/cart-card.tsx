@@ -16,9 +16,12 @@ import { formatEth } from '@/lib/eth';
  * é o **total da linha** (é o valor que o frame mostra em accent ao lado de uma
  * quantidade maior que um), porque no celular não há coluna "Total" separada.
  *
- * A lixeira fica abaixo do seletor. No Figma ela aparece desenhada por cima do
- * "+" de um dos cards — as duas não cabem no mesmo lugar, e sem ela o celular
- * ficaria sem remover; o desvio está registrado no `ARCHITECTURE.md`.
+ * O seletor fica numa linha só, centrado na altura do card, como no frame. A
+ * lixeira sobe para o canto superior direito: no Figma ela aparece desenhada
+ * por cima do "+" de um dos cards, e as duas não cabem no mesmo lugar — o canto
+ * é o espaço vazio do card, e é o único jeito de manter o seletor na linha do
+ * frame sem espremer o nome do NFT. O desvio está registrado no
+ * `ARCHITECTURE.md`.
  *
  * @param props - Linha e as ações do carrinho.
  */
@@ -29,7 +32,7 @@ export function CartCard({ item, actions }: CartItemProps) {
     <li
       data-testid="cart-row"
       data-nft={item.nftId}
-      className="bg-card rounded-media flex h-[100px] items-stretch overflow-hidden"
+      className="bg-card rounded-media relative flex h-[100px] items-stretch overflow-hidden"
     >
       <img
         src={item.imageUrl}
@@ -57,24 +60,26 @@ export function CartCard({ item, actions }: CartItemProps) {
           </p>
         </div>
 
-        <div className="flex w-20 shrink-0 flex-col items-center gap-1">
-          <CartStepper
-            item={item}
-            isBusy={isBusy}
-            variant="compact"
-            onChange={(quantity) => {
-              actions.setQuantity(item, quantity);
-            }}
-          />
+        <CartStepper
+          item={item}
+          isBusy={isBusy}
+          variant="compact"
+          onChange={(quantity) => {
+            actions.setQuantity(item, quantity);
+          }}
+        />
+      </div>
 
-          <CartRemoveButton
-            item={item}
-            isBusy={isBusy}
-            onConfirm={() => {
-              actions.removeItem(item);
-            }}
-          />
-        </div>
+      {/* Fora do fluxo: assim ela ocupa o canto vazio do card sem tirar
+          largura do nome nem deslocar o seletor do centro. */}
+      <div className="absolute top-1 right-1">
+        <CartRemoveButton
+          item={item}
+          isBusy={isBusy}
+          onConfirm={() => {
+            actions.removeItem(item);
+          }}
+        />
       </div>
     </li>
   );

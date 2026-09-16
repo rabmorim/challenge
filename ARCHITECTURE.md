@@ -1199,10 +1199,20 @@ Duas armadilhas de layout que o ajuste revelou, e que valem como documentação:
    stretch`), e as linhas absorviam a sobra, passando de 70px para 95px.
    `items-start` resolve.
 
-No frame de 414 a composição é outra (cards de 100px, resumo em painel de rodapé
-com cantos superiores de 40px), e a escolha entre as duas acontece **antes de
-renderizar** (`useCompactLayout`), para a árvore não ter dois seletores de
-quantidade e duas lixeiras por item.
+No frame de 414 a composição é outra, e a escolha entre as duas acontece **antes
+de renderizar** (`useCompactLayout`), para a árvore não ter dois seletores de
+quantidade e duas lixeiras por item. Medidas tiradas do
+`design/Carrinho de NFTsmobile.png`:
+
+| Elemento | Valor |
+| --- | --- |
+| Goteira | 28px (16px abaixo de 414 — ver desvio adiante) |
+| Card | 100px de altura, raio 16, 20px entre cards |
+| Miniatura | 100×100, colada à borda esquerda do card |
+| Seletor | círculos de 24px com borda accent, **em uma linha só**, centrado na altura do card |
+| Painel do resumo | emendado no último card, cantos superiores de 40px, degrade da superfície |
+| CTA | raio total, 56px de altura, degrade accent |
+| Barra de atalhos | **não existe** nesta tela (ver desvios) |
 
 ### Frame de 414 (celular)
 
@@ -1283,6 +1293,19 @@ divisória vertical, e botões sociais de 36px com borda de 1px.
 | Totais do recibo | recuados à direita (62% da largura), como no frame |
 | Arte "THANK YOU" | PNG exportado do Figma (80×80, servido em 66px), como `img` decorativa — é ilustração colorida, não um glifo que herda `currentColor` |
 
+No frame de 414 (`design/PagamentoMobile.png`) a tela é a da carteira, e cabe
+inteira em uma dobra:
+
+| Elemento | Valor |
+| --- | --- |
+| Goteira | 28px (16px abaixo de 414) |
+| Cabeçalho | seta de 35px à esquerda, título centralizado |
+| Cartão de carteira | raio 16, superfície `#241612`; o selecionado ganha borda accent |
+| Lista de provedores | linhas de 56px, glifo em círculo à esquerda e radio à direita |
+| Total | alinhado à direita, rótulo no texto primário e valor em accent |
+| CTA | raio total, 56px, degrade accent, colado ao rodapé |
+| Seções recolhidas | entre o total e o CTA — é o vão vazio do frame (ver desvios) |
+
 ### Assets (Fase 3)
 
 O Figma entrega **quatro artes** e as reutiliza entre os nove NFTs desenhados —
@@ -1359,7 +1382,7 @@ com `fetchPriority="high"`: é o elemento LCP da Início.
 | Detalhe em celulares sem miniaturas da galeria | O frame de 414 mostra uma peça só. A arte continua abrindo em tamanho cheio, mas o gatilho passa a ser a própria imagem (o toque que o celular sugere), em vez da lupa do frame de 1440. |
 | Abas e "Mais desta coleção" abaixo da folha no celular | O frame de 414 desenha só a primeira dobra. Cortá-las tiraria do celular a ficha técnica, as avaliações e o resto da coleção; elas seguem dentro da mesma superfície, para o fundo não se partir no meio da rolagem. |
 | `/favoritos` | Não há frame. A rota existe porque a barra inferior do frame mobile traz o atalho de favoritos e porque "favoritos persistem para o usuário autenticado" precisa de um lugar onde isso seja verificável. Composição derivada dos tokens e da grade do catálogo. |
-| Lixeira abaixo do seletor no card de 414 | O frame desenha a lixeira **por cima** do "+" de um dos cards — as duas não cabem no mesmo lugar, e sem ela o celular ficaria sem remover. Ela desceu para logo abaixo do seletor, dentro da mesma coluna de 80px, e o card continua com os 100px do frame. |
+| Lixeira no canto do card de 414 | O frame desenha a lixeira **por cima** do "+" de um dos cards — as duas não cabem no mesmo lugar, e sem ela o celular ficaria sem remover. O seletor fica onde o frame o põe (uma linha só, centrado na altura do card) e a lixeira sobe para o canto superior direito, fora do fluxo: é o espaço vazio do card, e enfileirar quatro controles espremeria o nome do NFT abaixo de 414px. |
 | Vão lateral de 16px no carrinho abaixo de 414 | O frame é desenhado em 414 com 28px de cada lado. Em 390 isso deixaria o nome do NFT sem largura para uma linha só; abaixo de 414 o vão cai para 16px, o que devolve ao texto exatamente a largura que ele tem no frame. |
 | "Colecionadores também viram" sem os itens do carrinho | O frame repete na seção dois NFTs que estão na tabela logo acima. Sugerir o que a pessoa acabou de escolher não ajuda — os itens do carrinho saem da lista antes de ela ser paginada. |
 | "Colecionadores também viram" ausente no frame de 414 | O frame mobile termina no painel do resumo, que é um bloco de fechamento de página (cantos superiores arredondados, colado à base). Emendar um carrossel depois dele contradiria o desenho. |
@@ -1368,8 +1391,10 @@ com `fetchPriority="high"`: é o elemento LCP da Início.
 | Botão de retirar o cupom aplicado | O frame só desenha "Aplicar". O enunciado §3 exige **aplicar e remover** cupom; o controle aparece apenas quando há cupom em vigor. |
 | Seta de voltar no carrinho de 414 | O frame a desenha; ela usa o histórico do router e, sem histórico, leva ao Mercado — seta que não volta para lugar nenhum seria controle inerte. |
 | `/pagamento` sem `h1` visível | O frame de 1440 abre direto na trilha e nos títulos das duas colunas. O nome da tela vive na trilha e no rótulo acessível de cada seção; o frame de 414 tem o título, e é ele que carrega o `h1`. |
-| Formulário do colecionador ausente no frame mobile de pagamento | O Figma traz um frame mobile só ("Pagamento com carteira"), sem os campos do colecionador — que são obrigatórios e validados pelo servidor. Empilhá-los acima da lista de carteiras desfiguraria o frame, que ocupa a tela inteira com o CTA no rodapé. A rota virou duas etapas (`?etapa=dados` e `?etapa=carteira`): a segunda é o frame, fiel; a primeira é a versão responsiva do formulário. A etapa vive na URL, então sobrevive ao refresh e o "voltar" do navegador anda entre elas. Avançar valida o formulário — deixar passar com campo inválido esconderia o erro de quem precisa corrigi-lo. |
+| Formulário do colecionador ausente no frame mobile de pagamento | O Figma traz um frame mobile só ("Pagamento com carteira"), sem os campos do colecionador — que são obrigatórios e validados pelo servidor. Empilhá-los acima da lista de carteiras desfiguraria o frame, que ocupa a tela inteira com o CTA no rodapé. A tela continua sendo **uma só**, igual ao frame na primeira dobra: o formulário e o resumo do pedido descem para duas seções recolhidas (`details` nativo), no vão que o frame deixa entre o total e o CTA. "Confirmar compra" valida antes de enviar e, quando encontra campo inválido, **abre a seção e leva o foco ao primeiro erro** (`useCollectorDisclosure`) — parar o envio com os erros dentro de uma seção fechada não mudaria nada na tela. |
+| Resumo do pedido recolhido no frame de 414 | O frame mostra só "Total: X ETH", e é ele que fica visível. Os itens, o cupom e as linhas de valor entram na segunda seção recolhida: sumir com eles deixaria o celular sem saber o que está comprando, e abri-los por padrão empurraria o "Confirmar compra" para fora da tela. A tela anterior (carrinho) mostra a mesma quebra por extenso. |
 | Barra de atalhos ausente no pagamento em celulares | Mesma razão do detalhe: o frame termina no "Confirmar compra", e a barra passaria por cima do CTA além de oferecer saídas laterais no meio de um checkout. A rota entra em `ROUTES_WITHOUT_MOBILE_NAV`; a seta de voltar do topo continua sendo a saída desenhada. |
+| Barra de atalhos ausente no carrinho em celulares | O frame de 414 não a desenha: a tela fecha no painel de resumo, colado à base, e a barra cobria justamente o total e o "Conectar e finalizar". A rota entra em `ROUTES_WITHOUT_MOBILE_NAV`, e com ela sai o vão que o layout raiz reservava. A saída desenhada é a seta de voltar do topo; entrar na conta a partir do carrinho continua acontecendo pelo "Conectar e finalizar", que cai no guard do pagamento. |
 | Estado de conexão da carteira no frame de 1440 | O frame desenha o mundo em que a carteira já está conectada. Conexão, recusa e desconexão são simulações exigidas pelo enunciado, e precisam de um lugar onde o estado seja visível e reversível — sem isso, escolher a carteira desconectada travaria o CTA sem explicação. O bloco aparece **só** quando há algo a resolver, então o caminho feliz continua idêntico ao frame; desconectar segue disponível no menu dos cartões de 414. |
 | "Trocar carteira" do frame de 414 | O frame mostra o rótulo ao lado de "Carteira conectada", com os dois cartões já selecionáveis logo abaixo. O controle virou o atalho correspondente: avança para a próxima carteira cadastrada, e fica desabilitado quando só existe uma — rótulo sem comportamento seria controle inerte. |
 | Avisos de pedido pendente, incerto e recusado | O Figma desenha só o caminho feliz. Os três estados são exigidos pelo enunciado ("representar pedido pendente, confirmado e recusado") e seguem o padrão visual da coluna. |
@@ -1379,8 +1404,11 @@ com `fetchPriority="high"`: é o elemento LCP da Início.
 | Seletor "Nome ENS" com mais de um domínio | O frame mostra só `.eth`. Um seletor de uma opção é um controle inerte; as opções (`.eth`, `.kurio.eth`, `.xyz`) fazem dele uma escolha real. |
 | Taxa de rede diferente da escrita no frame | O frame escreve `0.016 ETH` para 17 unidades. A taxa da simulação é parte fixa da rede mais parte por unidade (`NETWORK_FEES`) e dá outro valor — os números do frame são de vitrine, e a cotação da API é a referência do enunciado. |
 | Rótulos e endereço das carteiras semeadas | As fixtures passaram a usar os nomes do frame de 414 ("Principal" e "Reserva"), o nome ENS `nova.kurio.eth` e um endereço cujo final mascarado reproduz o `0xA91F…E82C` do frame — é o mesmo texto que aparece no recibo. |
-| Abas "Entrar \| Criar conta" também no mobile | O frame mobile troca de tela pelo link do rodapé. As abas mantêm a mesma composição nos dois tamanhos e dão semântica de `tablist` (setas do teclado, painel associado) que o link do rodapé não tem — que continua existindo. |
-| Botão de fechar (X) no mobile | O frame de tela cheia não desenha um. Sem ele, quem abre o painel por engano não tem como voltar. |
+| Abas "Entrar \| Criar conta" apenas em 1440 | O frame de 414 não as desenha: anuncia a tela por um título ("Entrar" / "Criar perfil de colecionador") e joga a troca para o convite do rodapé. As abas do Radix continuam montadas nos dois tamanhos — são o dono do estado de aba —, mas abaixo de `sm` saem da tela com `hidden`, e não `sr-only`: uma aba invisível que ainda recebe o foco do teclado seria uma parada sem indicação. Quem opera por teclado no celular usa o rodapé, que é um botão de verdade. |
+| X de fechar no painel de 414 | O frame mobile não o desenha. Sem ele, no toque não existe `Esc` e a única saída seria o "voltar" do navegador — um painel de tela cheia sem saída visível é uma armadilha. O X segue no mesmo lugar e com o mesmo tom do frame de 1440. |
+| Rótulo do envio do cadastro ("Criar perfil" em 414, "Criar conta" em 1440) | Os dois frames escrevem rótulos diferentes. A troca é por `hidden`, e não por opacidade, para o nome acessível do botão continuar igual ao rótulo visível em cada tamanho. |
+| Olho de mostrar/ocultar na confirmação de senha | O frame de 414 o desenha nos dois campos de senha; o de 1440, só em "Senha" (§5 do DESIGN_SPEC). Vale o de 1440 nos dois tamanhos: revelar a confirmação anula o que ela verifica, e um campo que se comporta de um jeito em cada largura é pior que a divergência de um ícone. |
+| "Nome de usuário" com texto à esquerda no frame de 414 | O frame centraliza o `placeholder` do primeiro campo e alinha à esquerda os outros três. Quatro campos idênticos com um deles alinhado diferente lê-se como falha, não como intenção — todos seguem o alinhamento dos demais. |
 | Rótulos dos campos apenas para leitor de tela | O design usa placeholder no lugar do rótulo. O `label` existe, associado ao campo (`sr-only`), porque placeholder não é rótulo acessível. |
 | Barra lateral da conta em celulares | Perfil e Carteiras não têm frame de 414. A barra vira um `<details>` nativo recolhido, cujo `summary` nomeia a seção aberta — o elemento já entrega `aria-expanded`, teclado e foco, que um drawer exigiria reimplementar. Ver §5e. |
 | Seções da conta fora do escopo ("em breve") | Atividade, Lista de interesse, Ofertas, Arquivos baixados e Suporte estão fora da entrega (enunciado §3). Continuam desenhadas, mas com `aria-disabled`, selo visível e um aviso ao serem acionadas — nunca navegam nem aparentam sucesso. |
@@ -1475,12 +1503,13 @@ A Fase 5 acrescenta 13 casos por viewport mais três baselines:
 
 Três coisas que esta fase impôs aos testes, e que descrevem o comportamento:
 
-1. **Os testes descrevem o fluxo, não a composição.** `submitOrder` avança para a
-   etapa da carteira quando ela existe (414) e clica direto no CTA quando não
-   (1440); `connectWallet` usa a ação em linha no desktop e o menu do cartão no
-   celular; `addFirstNftToCart` decide pela **largura** da janela, e não por
-   `isVisible()` — a faixa de ações do card nasce com opacidade zero, e "visível"
-   para o Playwright inclui elementos transparentes.
+1. **Os testes descrevem o fluxo, não a composição.** `fillCollectorForm` e
+   `waitForSummary` revelam a seção recolhida quando ela existe (414) e não
+   fazem nada quando não (1440); `connectWallet` usa a ação em linha no desktop
+   e o menu do cartão no celular; `addFirstNftToCart` decide pela **largura** da
+   janela, e não por `isVisible()` — a faixa de ações do card nasce com
+   opacidade zero, e "visível" para o Playwright inclui elementos
+   transparentes.
 2. **Duplicidade é um fato do servidor.** As afirmações de "criou um pedido" leem
    `GET /orders`, não a tela. O helper desconta o pedido já semeado na conta da
    Ana, que não pertence a nenhum teste.

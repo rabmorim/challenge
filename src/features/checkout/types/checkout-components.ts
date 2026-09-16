@@ -1,11 +1,10 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
 import type { CartItem } from '@/features/cart/types/cart';
 import type { OrderItem, OrderReceipt } from '@/features/checkout/types/order';
 import type {
   CheckoutGateApi,
   CheckoutScreenState,
-  CheckoutStep,
   CollectorFormApi,
   OrderSubmitApi,
   WalletSelectionApi,
@@ -154,16 +153,28 @@ export interface CheckoutLayoutProps {
 
 /** Props de `CheckoutMobile`. */
 export interface CheckoutMobileProps extends CheckoutLayoutProps {
-  /** Etapa corrente, lida da URL. */
-  step: CheckoutStep;
-  /**
-   * Navega para outra etapa (entra no historico).
-   *
-   * @param step - Etapa de destino.
-   */
-  onStepChange: (step: CheckoutStep) => void;
-  /** Sai do pagamento pela seta de voltar da primeira etapa. */
+  /** Sai do pagamento pela seta de voltar do frame. */
   onBack: () => void;
+}
+
+/** Props de `CheckoutDisclosure`. */
+export interface CheckoutDisclosureProps {
+  /** Nome da secao, escrito no `summary`. */
+  title: string;
+  /** Marcador usado pelos testes. */
+  testId: string;
+  /** Secao aberta. */
+  isOpen: boolean;
+  /**
+   * Abre e fecha a secao.
+   *
+   * @param isOpen - Novo estado, vindo do `toggle` do `details`.
+   */
+  onOpenChange: (isOpen: boolean) => void;
+  /** Referencia do painel revelado, quando quem chama precisa alcanca-lo. */
+  panelRef?: RefObject<HTMLDivElement | null>;
+  /** Conteudo da secao. */
+  children: ReactNode;
 }
 
 /** Props de `ReceiptDialog`. */

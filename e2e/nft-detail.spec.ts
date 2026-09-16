@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 
+import { expectAuthPanelOpen } from './support/auth';
 import { emitNftUpdate, startApp } from './support/mocks';
 
 /**
@@ -121,8 +122,7 @@ test.describe('detalhe do NFT', () => {
     // Visitante: o caminho verdadeiro e autenticar, nao um "pedido criado".
     // O que o botao faz com sessao (incluir no carrinho) tem teste em
     // `cart.spec.ts`, junto do resto do fluxo.
-    await expect(page.getByRole('dialog')).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Entrar' })).toBeVisible();
+    await expectAuthPanelOpen(page);
     await expect(page.getByTestId('cart-count')).toHaveCount(0);
   });
 

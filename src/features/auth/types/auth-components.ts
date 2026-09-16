@@ -15,6 +15,24 @@ export interface AuthPanelProps extends AuthFormProps {
   onTabChange: (tab: AuthTab) => void;
 }
 
+/**
+ * Props do titulo do painel no frame de 414.
+ * No celular o cabecalho e um titulo ("Entrar" / "Criar perfil de
+ * colecionador") em vez das abas, que ficam so no modal de 1440.
+ */
+export interface AuthHeadingProps {
+  /** Aba aberta — define qual titulo aparece. */
+  tab: AuthTab;
+}
+
+/** Props do rodape de troca de aba (existe apenas no frame de 414). */
+export interface AuthSwitchLinkProps {
+  /** Aba aberta — define o convite e o destino da troca. */
+  tab: AuthTab;
+  /** Troca de aba. */
+  onTabChange: (tab: AuthTab) => void;
+}
+
 /** Props do campo de senha com alternancia de visibilidade. */
 export interface PasswordFieldProps {
   /** Id do controle. */

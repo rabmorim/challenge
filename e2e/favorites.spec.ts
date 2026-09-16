@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { signIn, signOut, USERS } from './support/auth';
+import { expectAuthPanelOpen, signIn, signOut, USERS } from './support/auth';
 import { startApp, switchScenario } from './support/mocks';
 
 /**
@@ -49,8 +49,7 @@ test.describe('favoritos', () => {
 
     await favoriteButton(page, 'emerald-ape-042').click();
 
-    await expect(page.getByRole('dialog')).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Entrar' })).toBeVisible();
+    await expectAuthPanelOpen(page);
     // Nada foi favoritado: o botao continua desmarcado atras do painel.
     await expect(favoriteButton(page, 'emerald-ape-042')).toHaveAttribute('aria-pressed', 'false');
   });

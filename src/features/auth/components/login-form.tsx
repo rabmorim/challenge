@@ -31,11 +31,16 @@ export function LoginForm({ onAuthenticated }: AuthFormProps) {
 
   return (
     <form noValidate onSubmit={form.submit} aria-busy={form.isSubmitting} className="flex flex-col">
-      <p id={AUTH_SUBTITLE_ID} className="text-foreground text-modal text-center">
+      {/* O frame de 414 nao traz o subtitulo, mas ele e a descricao acessivel do
+          dialogo: `sr-only` o esconde sem tira-lo do DOM nem ocupar espaco. */}
+      <p
+        id={AUTH_SUBTITLE_ID}
+        className="text-foreground text-modal sr-only text-center sm:not-sr-only"
+      >
         {COPY.subtitle}
       </p>
 
-      <div className="mt-7 flex flex-col gap-3">
+      <div className="mt-7 flex flex-col gap-4 sm:gap-3">
         <FormField id="login-email" label={COPY.emailLabel} hideLabel error={form.errors.email}>
           {(field) => (
             <Input
@@ -77,7 +82,7 @@ export function LoginForm({ onAuthenticated }: AuthFormProps) {
         {COPY.forgotPassword}
       </Button>
 
-      <Button type="submit" className="mt-7" disabled={form.isSubmitting}>
+      <Button type="submit" className="mt-10 py-5 sm:mt-7 sm:py-3.5" disabled={form.isSubmitting}>
         {form.isSubmitting ? COPY.submitting : COPY.submit}
       </Button>
 

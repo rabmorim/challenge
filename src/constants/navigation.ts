@@ -14,12 +14,15 @@ export const MOBILE_NAV_LABEL = 'Atalhos do colecionador';
  * (`BuyBar`), e as duas empilhadas cobririam metade da tela. O pagamento é a
  * segunda, pelo mesmo motivo: o frame "Pagamento com carteira" termina no
  * "Confirmar compra", e a barra passaria por cima do CTA — além de oferecer
- * saídas laterais no meio de um checkout. Esconder a navegação não deixa
+ * saídas laterais no meio de um checkout. O carrinho é a terceira: o frame
+ * fecha a tela com o painel de resumo colado à base, e a barra cobria
+ * justamente o total e o "Conectar e finalizar". Esconder a navegação não deixa
  * ninguém preso: a seta de voltar da própria tela é o caminho de saída
- * desenhado nos dois frames.
+ * desenhado nos três frames.
  */
 export const ROUTES_WITHOUT_MOBILE_NAV: readonly string[] = [
   ROUTES.nftDetail,
+  ROUTES.cart,
   ROUTE_IDS.checkout,
 ];
 

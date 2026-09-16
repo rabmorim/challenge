@@ -30,6 +30,8 @@ export const COLLECTOR_INPUT = {
  * @param page - Pagina do teste, na tela de pagamento.
  */
 export async function fillCollectorForm(page: Page): Promise<void> {
+  await openCollectorForm(page);
+
   await page.getByLabel('Nome de exibição').fill(COLLECTOR_INPUT.displayName);
   await page.getByLabel('Nome do perfil').fill(COLLECTOR_INPUT.profileName);
   await page.getByLabel('Código de indicação').fill(COLLECTOR_INPUT.referralCode);
@@ -41,6 +43,8 @@ export async function fillCollectorForm(page: Page): Promise<void> {
  * @param page - Pagina do teste.
  */
 export async function waitForSummary(page: Page): Promise<void> {
+  await openOrderSummary(page);
+
   await expect(page.getByTestId('checkout-summary-skeleton')).toHaveCount(0);
   await expect(page.getByTestId('checkout-summary-values')).toBeVisible();
 }
@@ -74,18 +78,46 @@ export async function addFirstNftToCart(page: Page): Promise<void> {
 }
 
 /**
- * Avanca para a etapa "Pagamento com carteira" quando a tela esta em 414.
+ * Abre uma secao recolhivel do pagamento, quando ela existe.
  *
- * O frame de 1440 mostra formulario e carteiras de uma vez; o de 414 os separa
- * em duas etapas. Os testes descrevem o FLUXO, nao a composicao, entao o passo
- * extra do celular fica aqui — e cada teste vale nos dois viewports sem um `if`
- * de largura espalhado pelos arquivos.
+ * O frame de 1440 mostra formulario e resumo de uma vez; o de 414 desenha so a
+ * carteira e guarda os dois atras de um `details`. Os testes descrevem o FLUXO,
+ * nao a composicao, entao o passo extra do celular fica aqui — e cada teste
+ * vale nos dois viewports sem um `if` de largura espalhado pelos arquivos.
+ *
+ * @param page - Pagina do teste, na tela de pagamento.
+ * @param testId - Secao a revelar.
+ */
+async function openSection(page: Page, testId: string): Promise<void> {
+  // O formulario existe nas duas composicoes: esperar por ele evita decidir se
+  // a secao existe ANTES de a tela montar — num carregamento lento, a resposta
+  // seria sempre "nao existe", e o conteudo ficaria recolhido.
+  await expect(page.getByTestId('collector-form')).toBeAttached();
+
+  const section = page.getByTestId(testId);
+  if ((await section.count()) === 0) return;
+  if ((await section.getAttribute('open')) !== null) return;
+
+  await section.locator('summary').click();
+  await expect(section).toHaveAttribute('open', '');
+}
+
+/**
+ * Revela o formulario do colecionador.
  *
  * @param page - Pagina do teste, na tela de pagamento.
  */
-export async function openWalletStep(page: Page): Promise<void> {
-  const advance = page.getByTestId('checkout-continue');
-  if ((await advance.count()) > 0) await advance.click();
+export async function openCollectorForm(page: Page): Promise<void> {
+  await openSection(page, 'checkout-collector-section');
+}
+
+/**
+ * Revela o resumo do pedido (itens, cupom e valores).
+ *
+ * @param page - Pagina do teste, na tela de pagamento.
+ */
+export async function openOrderSummary(page: Page): Promise<void> {
+  await openSection(page, 'checkout-summary-section');
 }
 
 /**
@@ -111,18 +143,16 @@ export async function connectWallet(page: Page, walletId: string): Promise<void>
 }
 
 /**
- * Aciona o envio a partir de onde a composicao estiver.
+ * Aciona o envio sem garantir que ele vai passar.
  *
- * No frame de 1440 isso e o proprio "Confirmar compra"; no de 414 e o
- * "Escolher carteira", que valida o formulario antes de avancar. Nos dois
- * casos, formulario invalido para no lugar e mostra os erros nos campos.
+ * E o mesmo "Confirmar compra" nas duas composicoes: formulario invalido para
+ * no lugar e mostra os erros nos campos — no frame de 414, revelando a secao
+ * que os guarda.
  *
  * @param page - Pagina do teste, na tela de pagamento.
  */
 export async function attemptSubmit(page: Page): Promise<void> {
-  const advance = page.getByTestId('checkout-continue');
-  const target = (await advance.count()) > 0 ? advance : page.getByTestId('checkout-submit');
-  await target.click();
+  await page.getByTestId('checkout-submit').click();
 }
 
 /**
@@ -131,8 +161,6 @@ export async function attemptSubmit(page: Page): Promise<void> {
  * @param page - Pagina do teste, com o formulario preenchido.
  */
 export async function submitOrder(page: Page): Promise<void> {
-  await openWalletStep(page);
-
   const submit = page.getByTestId('checkout-submit');
   await expect(submit).toBeEnabled();
   await submit.click();

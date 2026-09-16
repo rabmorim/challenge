@@ -36,7 +36,15 @@ export function AuthDialog() {
           // Goteira lateral publicada como variavel: a divisoria de "Ou continue
           // com" precisa anula-la para sangrar ate as bordas do painel.
           '[--auth-gutter:1.75rem] sm:[--auth-gutter:5rem]',
-          'inset-0 h-dvh w-full overflow-y-auto px-(--auth-gutter) py-12',
+          // O frame de 414 nao e um card sobre a pagina: e a propria pagina,
+          // no fundo #140D0A. O modal de 1440 segue na superficie do card.
+          'bg-background inset-0 h-dvh w-full overflow-y-auto px-(--auth-gutter) py-12',
+          // O frame de 414 desenha o bloco centrado na altura. `-safe` e o que
+          // torna isso seguro num container que rola: quando o conteudo nao
+          // cabe (telas baixas, teclado aberto), o alinhamento volta para o
+          // topo em vez de esconder o inicio acima da area rolavel.
+          'flex flex-col justify-center-safe',
+          'sm:block sm:bg-card',
           'sm:inset-auto sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[92dvh] sm:w-[500px]',
           'sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-panel sm:py-10',
           'sm:border-b-4 sm:border-b-primary',

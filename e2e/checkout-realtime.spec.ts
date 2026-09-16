@@ -3,7 +3,6 @@ import { expect, test } from '@playwright/test';
 import { signIn, USERS } from './support/auth';
 import {
   fillCollectorForm,
-  openWalletStep,
   readPlacedOrders,
   submitOrder,
   waitForSummary,
@@ -40,7 +39,6 @@ test.describe('cenario 9 — mudanca de preco durante o checkout', () => {
     await page.goto('/pagamento');
     await waitForSummary(page);
     await fillCollectorForm(page);
-    await openWalletStep(page);
     await expect(page.getByTestId('checkout-submit')).toBeEnabled();
 
     // O preco muda no servidor e o evento chega pelo socket.
@@ -90,7 +88,6 @@ test.describe('cenario 9 — mudanca de preco durante o checkout', () => {
     await expect(page.getByTestId('stale-quote-notice')).toBeVisible();
 
     // O bloqueio acompanha o usuario ate o CTA, em qualquer composicao.
-    await openWalletStep(page);
     await expect(page.getByTestId('checkout-submit')).toBeDisabled();
     expect(await readPlacedOrders(page)).toHaveLength(0);
 

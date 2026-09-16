@@ -79,6 +79,8 @@ export const AUTH_COPY = {
   },
   signIn: {
     subtitle: 'Entre para gerenciar sua carteira, coleção e perfil de criador.',
+    /** Titulo do frame de 414, onde o cabecalho e um titulo e nao as abas. */
+    mobileTitle: 'Entrar',
     emailLabel: 'E-mail',
     emailPlaceholder: 'contato@email.com',
     passwordLabel: 'Senha',
@@ -90,6 +92,8 @@ export const AUTH_COPY = {
   },
   signUp: {
     subtitle: 'Crie seu perfil de colecionador e conecte uma carteira quando quiser.',
+    /** Titulo do frame de 414, onde o cabecalho e um titulo e nao as abas. */
+    mobileTitle: 'Criar perfil de colecionador',
     usernameLabel: 'Nome de usuário',
     usernamePlaceholder: 'Nome de usuário',
     emailLabel: 'E-mail',
@@ -99,8 +103,18 @@ export const AUTH_COPY = {
     passwordConfirmationLabel: 'Confirmar senha',
     passwordConfirmationPlaceholder: 'Confirmar senha',
     submit: 'Criar conta',
+    /** Rotulo do envio no frame de 414 ("Criar perfil", nao "Criar conta"). */
+    mobileSubmit: 'Criar perfil',
     submitting: 'Criando conta...',
     success: 'Conta criada.',
+  },
+  /**
+   * Rodape de troca de aba do frame de 414.
+   * So existe no celular: no modal de 1440 a troca acontece pelas abas do topo.
+   */
+  footer: {
+    [AUTH_TABS.signIn]: { prompt: 'Novo na Kurio?', action: 'Crie uma conta' },
+    [AUTH_TABS.signUp]: { prompt: 'Já tem uma conta?', action: 'Entre' },
   },
   social: {
     divider: 'Ou continue com',

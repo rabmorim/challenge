@@ -110,7 +110,9 @@ export function CartScreen() {
   if (isCompact) {
     return (
       <div data-testid="cart-mobile" className="flex flex-col">
-        <div className="flex flex-col gap-5 px-4 pt-6 pb-8 min-[414px]:px-7">
+        {/* O frame emenda o painel de resumo no último card: o respiro aqui é
+            só o que separa a lista da borda arredondada do painel. */}
+        <div className="flex flex-col gap-5 px-4 pt-6 pb-1.5 min-[414px]:px-7">
           <CartMobileHeader />
           <LiveRegion testId="cart-live-region" message={announcer.message} />
 

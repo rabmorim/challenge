@@ -1,18 +1,12 @@
-import { Link, useNavigate, useSearch } from '@tanstack/react-router';
-import { useCallback } from 'react';
+import { Link } from '@tanstack/react-router';
 
 import { Button } from '@/components/ui/button';
-import { ROUTES, ROUTE_IDS } from '@/constants/routes';
+import { ROUTES } from '@/constants/routes';
 import { CheckoutDesktop } from '@/features/checkout/components/checkout-desktop';
 import { CheckoutMobile } from '@/features/checkout/components/checkout-mobile';
 import { ReceiptDialog } from '@/features/checkout/components/receipt-dialog';
 import { CHECKOUT_COPY } from '@/features/checkout/constants/checkout-copy';
 import { useCheckout } from '@/features/checkout/hooks/use-checkout';
-import {
-  CHECKOUT_STEP_PARAM,
-  DEFAULT_CHECKOUT_STEP,
-} from '@/features/checkout/lib/checkout-search';
-import type { CheckoutStep } from '@/features/checkout/types/checkout-state';
 import { useBackNavigation } from '@/hooks/use-back-navigation';
 import { useCompactLayout } from '@/hooks/use-compact-layout';
 
@@ -20,10 +14,11 @@ import { useCompactLayout } from '@/hooks/use-compact-layout';
  * Tela de pagamento.
  *
  * Monta o estado uma vez (`useCheckout`) e escolhe a composição **antes** de
- * renderizar: o frame de 1440 é formulário e resumo lado a lado, o de 414 são
- * duas etapas em tela cheia. Montar as duas e esconder uma com `md:hidden`
- * duplicaria a árvore — dois formulários com os mesmos ids, dois grupos de
- * radio de carteira, dois botões "Confirmar compra" para o leitor de tela.
+ * renderizar: o frame de 1440 é formulário e resumo lado a lado, o de 414 é a
+ * tela da carteira com as duas seções recolhidas. Montar as duas e esconder uma
+ * com `md:hidden` duplicaria a árvore — dois formulários com os mesmos ids,
+ * dois grupos de radio de carteira, dois botões "Confirmar compra" para o
+ * leitor de tela.
  *
  * O recibo fica **fora** das composições e é renderizado em qualquer estado da
  * página. Não é detalhe de organização: o pedido confirmado esvazia o carrinho,
@@ -37,18 +32,7 @@ import { useCompactLayout } from '@/hooks/use-compact-layout';
 export function CheckoutScreen() {
   const checkout = useCheckout();
   const isCompact = useCompactLayout();
-  const navigate = useNavigate();
   const back = useBackNavigation();
-
-  const search = useSearch({ from: ROUTE_IDS.checkout });
-  const step = search[CHECKOUT_STEP_PARAM] ?? DEFAULT_CHECKOUT_STEP;
-
-  const goToStep = useCallback(
-    (next: CheckoutStep) => {
-      void navigate({ to: ROUTES.checkout, search: { [CHECKOUT_STEP_PARAM]: next } });
-    },
-    [navigate],
-  );
 
   const hasOrder = checkout.order.phase !== 'idle';
 
@@ -87,12 +71,7 @@ export function CheckoutScreen() {
     }
 
     return isCompact ? (
-      <CheckoutMobile
-        checkout={checkout}
-        step={step}
-        onStepChange={goToStep}
-        onBack={back.goBack}
-      />
+      <CheckoutMobile checkout={checkout} onBack={back.goBack} />
     ) : (
       <CheckoutDesktop checkout={checkout} />
     );

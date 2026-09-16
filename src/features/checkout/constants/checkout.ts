@@ -73,10 +73,3 @@ export const CHECKOUT_SKELETON_ROWS = 3;
  */
 export const THANK_YOU_ICON = { src: '/icons/thank-you.png', size: 80 } as const;
 
-/** Etapas do pagamento no frame de 414. */
-export const CHECKOUT_STEPS = {
-  /** Formulario "Perfil do colecionador". */
-  details: 'dados',
-  /** Tela "Pagamento com carteira" do frame. */
-  wallet: 'carteira',
-} as const;

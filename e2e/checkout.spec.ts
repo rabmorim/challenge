@@ -6,7 +6,6 @@ import {
   attemptSubmit,
   connectWallet,
   fillCollectorForm,
-  openWalletStep,
   readPlacedOrders,
   submitOrder,
   waitForSummary,
@@ -130,7 +129,6 @@ test.describe('cenario 7 — falhas de pagamento', () => {
     await waitForSummary(page);
     await fillCollectorForm(page);
 
-    await openWalletStep(page);
 
     // Dois cliques no MESMO quadro, antes de o React desabilitar o botao: e o
     // caso que o botao desabilitado sozinho nao cobre.
@@ -243,7 +241,6 @@ test.describe('conexao simulada da carteira', () => {
     await page.goto('/pagamento');
     await waitForSummary(page);
     await fillCollectorForm(page);
-    await openWalletStep(page);
 
     // A carteira WalletConnect da Ana nasce desconectada: e a que pede conexao.
     await page.getByTestId('wallet-provider-walletconnect').click();

@@ -23,7 +23,6 @@ export const CHECKOUT_COPY = {
   switchWallet: 'Trocar carteira',
   walletBlockTitle: 'Carteira e rede',
   mobileTotal: 'Total:',
-  continueToWallet: 'Escolher carteira',
 
   couponPrompt: 'Tem um código promocional?',
   couponAction: 'Aplique aqui',

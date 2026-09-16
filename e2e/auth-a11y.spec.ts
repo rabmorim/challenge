@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { USERS } from './support/auth';
+import { isDesktopViewport, USERS } from './support/auth';
 import { startApp } from './support/mocks';
 
 /**
@@ -35,6 +35,7 @@ test.describe('acessibilidade do painel de autenticacao', () => {
   });
 
   test('as abas sao operaveis por teclado e trocam o formulario', async ({ page }) => {
+    test.skip(!isDesktopViewport(page), 'As abas so compoem o frame de 1440.');
     await page.getByRole('button', { name: 'Entrar', exact: true }).click();
 
     const dialog = page.getByRole('dialog');
@@ -47,6 +48,26 @@ test.describe('acessibilidade do painel de autenticacao', () => {
     );
     await expect(dialog.getByLabel('Confirmar senha')).toBeVisible();
     await expect(page).toHaveURL(/auth=criar-conta/);
+  });
+
+  test('no celular o rodape troca o formulario pelo teclado', async ({ page }) => {
+    test.skip(isDesktopViewport(page), 'O rodape de troca so compoe o frame de 414.');
+    await page.getByRole('button', { name: 'Entrar', exact: true }).click();
+
+    const dialog = page.getByRole('dialog');
+    // O frame de 414 nao desenha as abas: sem este convite, quem chega pelo
+    // login nao teria como alcancar o cadastro.
+    const toSignUp = dialog.getByRole('button', { name: /Crie uma conta/ });
+    await toSignUp.focus();
+    await page.keyboard.press('Enter');
+
+    await expect(dialog.getByLabel('Confirmar senha')).toBeVisible();
+    await expect(page).toHaveURL(/auth=criar-conta/);
+
+    await dialog.getByRole('button', { name: /J[aá] tem uma conta/ }).click();
+
+    await expect(dialog.getByLabel('Confirmar senha')).toBeHidden();
+    await expect(page).toHaveURL(/auth=entrar/);
   });
 
   test('erros de validacao ficam associados aos campos', async ({ page }) => {

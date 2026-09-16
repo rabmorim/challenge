@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { signIn, USERS } from './support/auth';
+import { expectAuthPanelOpen, signIn, submitLogin, USERS } from './support/auth';
 import { emitNftUpdate, seedCart, startApp } from './support/mocks';
 
 /**
@@ -99,8 +99,7 @@ test.describe('carrinho', () => {
 
     await page.getByTestId('buy-button').click();
 
-    await expect(page.getByRole('dialog')).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Entrar' })).toBeVisible();
+    await expectAuthPanelOpen(page);
     // Nada foi adicionado: o selo do header continua sem contagem.
     await expect(page.getByTestId('cart-count')).toHaveCount(0);
   });
@@ -243,7 +242,14 @@ test.describe('carrinho', () => {
     await page.goto('/carrinho');
     await expect(page.getByTestId('cart-row')).toHaveCount(2);
 
-    await signIn(page, USERS.ana);
+    // O caminho desenhado: o frame de 414 nao traz header nem barra de atalhos
+    // no carrinho, entao a sessao do visitante comeca pelo proprio "Conectar e
+    // finalizar", que cai no guard do pagamento e volta ao destino depois.
+    await page.getByTestId('cart-checkout').click();
+    await submitLogin(page, USERS.ana);
+    await expect(page).toHaveURL(/\/pagamento/);
+
+    await page.goto('/carrinho');
 
     // Os itens continuam la, com as quantidades, agora na conta da Ana.
     await expect(page.getByTestId('cart-row')).toHaveCount(2);
@@ -328,7 +334,8 @@ test.describe('carrinho', () => {
 
     await expect(page).toHaveURL(/\/pagamento/);
     // A tela de pagamento em si, e nao um marcador: o formulario do colecionador
-    // so existe atras do guard.
-    await expect(page.getByTestId('collector-form')).toBeVisible();
+    // so existe atras do guard. `toBeAttached` porque no frame de 414 ele nasce
+    // dentro da secao recolhida.
+    await expect(page.getByTestId('collector-form')).toBeAttached();
   });
 });
