@@ -14,7 +14,9 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
-lighthouse-report/
+# `lighthouse-report/` É versionado: o enunciado §10 pede os relatórios
+# HTML/JSON da auditoria junto da entrega. O conteúdo é o da última execução de
+# `pnpm lighthouse` (3 medições por página e perfil + `summary.json`).
 
 # Ambiente
 # Regra geral: nenhum .env entra no repositorio.

@@ -1,5 +1,6 @@
 import { FormField } from '@/components/form-field';
 import { Input } from '@/components/ui/input';
+import { FOCUS_RING_CLASS } from '@/constants/a11y';
 import { ENS_DOMAIN_OPTIONS } from '@/constants/ens';
 import { NETWORKS, NETWORK_IDS } from '@/constants/network';
 import { CheckoutSelect } from '@/features/checkout/components/checkout-select';
@@ -305,6 +306,7 @@ export function CollectorForm({ form, isLocked }: CollectorFormProps) {
               }}
               className={cn(
                 'text-body rounded-control border-input text-icon-muted w-full resize-y border bg-transparent px-4 py-3 outline-none',
+                FOCUS_RING_CLASS,
                 'focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-60',
                 'aria-invalid:border-destructive',
               )}

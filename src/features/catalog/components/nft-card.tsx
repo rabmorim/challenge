@@ -23,12 +23,20 @@ import { cn } from '@/lib/utils';
  *
  * A arte não é adiada (`loading` padrão): as nove posições da grade reutilizam
  * quatro arquivos, então adiá-las não economiza requisição e ainda deixa o card
- * vazio em captura de página inteira. As dimensões são declaradas e a moldura
+ * vazio em captura de página inteira. A primeira da grade ainda pede
+ * prioridade (`hasPriorityImage`): é ela que o Lighthouse mede como LCP da
+ * Início no celular, e sem a dica ela disputa banda com as outras oito. As dimensões são declaradas e a moldura
  * tem proporção fixa, então a chegada da arte não empurra o conteúdo (sem CLS).
  *
  * @param props - NFT a exibir e estado de favorito.
  */
-export function NftCard({ nft, isFavorite, isFavoritePending, onToggleFavorite }: NftCardProps) {
+export function NftCard({
+  nft,
+  isFavorite,
+  isFavoritePending,
+  onToggleFavorite,
+  hasPriorityImage = false,
+}: NftCardProps) {
   const hasDiscount = nft.previousPrice !== null;
   const isSoldOut = nft.edition.available === 0;
 
@@ -53,6 +61,7 @@ export function NftCard({ nft, isFavorite, isFavoritePending, onToggleFavorite }
               width={CARD_IMAGE_SIZE}
               height={CARD_IMAGE_SIZE}
               decoding="async"
+              fetchPriority={hasPriorityImage ? 'high' : undefined}
               className="rounded-media lg:rounded-card aspect-square w-full max-w-[250px] object-cover"
             />
           </Link>

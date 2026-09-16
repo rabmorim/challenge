@@ -3,15 +3,22 @@ import { cn } from '@/lib/utils';
 import type { ComponentProps } from 'react';
 import { Slot } from 'radix-ui';
 
+import { FOCUS_RING_CLASS } from '@/constants/a11y';
+
 /**
  * Variantes do botao (primitivo shadcn/ui adaptado ao KURIO).
  *
  * O Figma nao desenha hover — o accent e chapado —, mas `:focus-visible` e
  * `disabled` sao obrigatorios (a11y e submit em andamento) e por isso existem
  * aqui seguindo o mesmo padrao visual: anel no accent e contraste reduzido.
+ *
+ * O anel e declarado AQUI, junto do `outline-none`, e nao herdado da regra
+ * `:focus-visible` do tema: `outline-none` e uma utilidade e vence a camada
+ * base, entao sem esta linha TODO botao do app ficaria sem indicacao de foco —
+ * inclusive os `asChild`, que aplicam estas mesmas classes a um link.
  */
 const buttonVariants = cva(
-  'inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-control leading-none whitespace-nowrap outline-none disabled:pointer-events-none disabled:opacity-60 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+  `inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-control leading-none whitespace-nowrap outline-none disabled:pointer-events-none disabled:opacity-60 [&_svg]:pointer-events-none [&_svg]:shrink-0 ${FOCUS_RING_CLASS}`,
   {
     variants: {
       variant: {

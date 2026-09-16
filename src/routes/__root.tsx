@@ -1,4 +1,9 @@
-import { Outlet, createRootRouteWithContext, useRouterState } from '@tanstack/react-router';
+import {
+  HeadContent,
+  Outlet,
+  createRootRouteWithContext,
+  useRouterState,
+} from '@tanstack/react-router';
 
 import { MobileNav } from '@/components/mobile-nav';
 import { NotFound } from '@/components/not-found';
@@ -6,11 +11,13 @@ import { RouteDevtools } from '@/components/route-devtools';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { ROUTES_WITHOUT_MOBILE_NAV } from '@/constants/navigation';
+import { ROUTE_SEO } from '@/constants/seo';
 import { ensureSession } from '@/features/auth/api/session-query';
 import { AuthDialog } from '@/features/auth/components/auth-dialog';
 import { useSessionExpiryWatcher } from '@/features/auth/hooks/use-session-expiry-watcher';
 import { useSocketIdentity } from '@/features/auth/hooks/use-socket-identity';
 import { validateAuthSearch } from '@/features/auth/lib/auth-search';
+import { routeHead } from '@/lib/route-head';
 import { cn } from '@/lib/utils';
 import type { RouterContext } from '@/types/router';
 
@@ -37,6 +44,11 @@ function RootLayout() {
 
   return (
     <>
+      {/* Aplica o `head` da rota corrente — `<title>` e `<meta description>`.
+          O `index.html` continua servindo o par da Início, que é o que um
+          rastreador sem JavaScript enxerga. */}
+      <HeadContent />
+
       <a className="skip-link" href="#main">
         Pular para o conteúdo
       </a>
@@ -67,7 +79,13 @@ function RootLayout() {
  */
 export const Route = createRootRouteWithContext<RouterContext>()({
   validateSearch: validateAuthSearch,
+  // Par de fallback da raiz. Quando NENHUMA rota filha casa, a raiz e a unica
+  // correspondencia e o `notFoundComponent` assume — e o titulo precisa dizer
+  // isso, em vez de anunciar a Inicio. Fora esse caso, o par da Inicio vale
+  // enquanto a rota filha nao resolve o `head` dela (e e tambem o que o
+  // `index.html` serve antes do JavaScript subir).
   beforeLoad: async ({ context }) => ({ session: await ensureSession(context.queryClient) }),
+  head: ({ matches }) => routeHead(matches.length > 1 ? ROUTE_SEO.home : ROUTE_SEO.notFound),
   component: RootLayout,
   notFoundComponent: NotFound,
 });

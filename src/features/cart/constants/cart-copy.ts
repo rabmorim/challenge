@@ -19,6 +19,8 @@ export const CART_COPY = {
   breadcrumbHome: 'Início',
   breadcrumbCurrent: 'Carrinho',
   back: 'Voltar para a tela anterior',
+  /** Texto do destino de foco usado depois de remover uma linha. */
+  focusAnchor: 'Lista do carrinho atualizada.',
 
   /** Cabeçalhos da tabela do frame de 1440. */
   columnNfts: 'NFTs',

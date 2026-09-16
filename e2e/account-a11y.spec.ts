@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 import { openAccountNav, openProfile, openWallets } from './support/account';
 import { signIn, USERS } from './support/auth';

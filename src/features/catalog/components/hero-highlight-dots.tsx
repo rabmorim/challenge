@@ -1,3 +1,4 @@
+import { TOUCH_TARGET_EXPANSION_CLASS } from '@/constants/a11y';
 import { HOME_COPY } from '@/features/catalog/constants/catalog-copy';
 import type { HeroHighlightDotsProps } from '@/features/catalog/types/catalog-components';
 import { cn } from '@/lib/utils';
@@ -34,7 +35,7 @@ export function HeroHighlightDots({
             }}
             className={cn(
               'relative cursor-pointer rounded-full',
-              'before:absolute before:-inset-2 before:content-[""]',
+              TOUCH_TARGET_EXPANSION_CLASS,
               index === activeIndex ? 'bg-primary' : 'bg-primary/40',
               dotClassName,
             )}

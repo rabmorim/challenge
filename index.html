@@ -21,9 +21,144 @@
       crossorigin
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!--
+      Esqueleto de arranque, em HTML e CSS embutidos.
+
+      O `main.tsx` precisa aguardar o worker do MSW antes de importar a arvore do
+      app: o engine.io do `socket.io-client` captura a referencia global de
+      `WebSocket` quando o modulo dele e avaliado, e o MSW so intercepta o socket
+      se ja estiver instalado (ARCHITECTURE §6). Sem este bloco, essa espera
+      valeria tambem para o PRIMEIRO PIXEL — no perfil movel do Lighthouse eram
+      2,5s de tela em branco.
+
+      O esqueleto nao depende de JavaScript nenhum: ele ja esta no documento e o
+      React o substitui ao montar (`createRoot` limpa o container). Os mocks
+      continuam ligados e nenhuma funcionalidade sai do ar — o que muda e que o
+      arranque deixa de ser assistido de uma pagina vazia.
+
+      As medidas espelham o primeiro paint real: faixa de 45px com a marca a
+      esquerda (como o `SiteHeader`) e, abaixo, os blocos que o conteudo ocupa.
+      Sem animacao, para nao haver excecao de `prefers-reduced-motion` em um
+      bloco que dura menos de um segundo.
+
+      A marca aparece em TODAS as larguras, e nao so a partir de `md` como o
+      header de verdade: "First Contentful Paint" exige um elemento com texto ou
+      imagem, e blocos de cor chapada nao contam. Sem ela o celular ficava sem
+      nenhum candidato a primeiro paint e a metrica continuava esperando o app —
+      medido, foram 2,5s contra os 0,7s com a marca. Como este bloco e um estado
+      de carregamento, que o Figma nao desenha em frame nenhum, a marca acima da
+      busca nao contradiz o frame de 414: ela some no instante em que o app monta.
+    -->
+    <style>
+      body {
+        margin: 0;
+        background-color: #140d0a;
+        color: #f5f1eb;
+      }
+
+      #boot-shell {
+        font-family: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+
+      #boot-shell .boot-bar {
+        margin: 0 auto;
+        display: flex;
+        min-height: 45px;
+        max-width: 1200px;
+        align-items: center;
+        border-bottom: 1px solid rgba(63, 35, 25, 0.6);
+        padding: 8px 24px;
+      }
+
+      #boot-shell .boot-brand {
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: 0.1em;
+      }
+
+      #boot-shell .boot-main {
+        margin: 0 auto;
+        display: flex;
+        max-width: 1200px;
+        flex-direction: column;
+        gap: 16px;
+        padding: 24px;
+      }
+
+      #boot-shell .boot-block {
+        background-color: #241612;
+        border-radius: 10px;
+      }
+
+      #boot-shell .boot-search {
+        height: 45px;
+      }
+
+      #boot-shell .boot-hero {
+        height: 190px;
+        border-radius: 12px;
+      }
+
+      #boot-shell .boot-grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #boot-shell .boot-card {
+        height: 200px;
+        border-radius: 20px;
+      }
+
+      @media (min-width: 768px) {
+        #boot-shell .boot-main {
+          gap: 64px;
+          padding: 24px;
+        }
+
+        #boot-shell .boot-search {
+          display: none;
+        }
+
+        #boot-shell .boot-hero {
+          height: 420px;
+          border-radius: 15px;
+        }
+
+        #boot-shell .boot-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        #boot-shell .boot-card {
+          height: 330px;
+          border-radius: 15px;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Substituido pelo app assim que ele monta. `aria-hidden` porque nao ha
+           conteudo a anunciar aqui: quem usa leitor de tela ouve a pagina de
+           verdade, e nao uma descricao do carregamento. -->
+      <div id="boot-shell" aria-hidden="true">
+        <header class="boot-header">
+          <div class="boot-bar"><span class="boot-brand">KURIO</span></div>
+        </header>
+
+        <div class="boot-main">
+          <div class="boot-block boot-search"></div>
+          <div class="boot-block boot-hero"></div>
+          <div class="boot-grid">
+            <div class="boot-block boot-card"></div>
+            <div class="boot-block boot-card"></div>
+            <div class="boot-block boot-card"></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

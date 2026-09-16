@@ -1,13 +1,16 @@
 import { Link, createFileRoute } from '@tanstack/react-router';
+import { useId } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/constants/routes';
+import { ROUTE_SEO } from '@/constants/seo';
 import { CatalogError } from '@/features/catalog/components/catalog-feedback';
 import { NftGrid } from '@/features/catalog/components/nft-grid';
 import { NftGridSkeleton } from '@/features/catalog/components/nft-grid-skeleton';
 import { FAVORITES_COPY } from '@/features/catalog/constants/favorites';
 import { useFavorites } from '@/features/catalog/hooks/use-favorites';
 import { useNftRealtime } from '@/features/catalog/hooks/use-nft-realtime';
+import { routeHead } from '@/lib/route-head';
 
 /**
  * Favoritos do colecionador.
@@ -22,6 +25,7 @@ import { useNftRealtime } from '@/features/catalog/hooks/use-nft-realtime';
  */
 function FavoritesRoute() {
   const favorites = useFavorites();
+  const gridHeadingId = useId();
 
   useNftRealtime();
 
@@ -50,12 +54,20 @@ function FavoritesRoute() {
       )}
 
       {!favorites.isPending && !favorites.isError && favorites.items.length > 0 && (
-        <NftGrid items={favorites.items} favorites={favorites} isRefreshing={false} />
+        /* O card do catálogo abre em `h3`; sem este `h2` a ordem pularia de
+           `h1` direto para `h3`. É a mesma solução da seção do catálogo. */
+        <section aria-labelledby={gridHeadingId}>
+          <h2 className="sr-only" id={gridHeadingId}>
+            {FAVORITES_COPY.gridLabel}
+          </h2>
+          <NftGrid items={favorites.items} favorites={favorites} isRefreshing={false} />
+        </section>
       )}
     </section>
   );
 }
 
 export const Route = createFileRoute('/_private/favoritos')({
+  head: () => routeHead(ROUTE_SEO.favorites),
   component: FavoritesRoute,
 });

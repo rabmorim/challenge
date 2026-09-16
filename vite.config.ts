@@ -5,6 +5,7 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
+
 /**
  * Configuracao do Vite.
  *
@@ -40,6 +41,8 @@ export default defineConfig({
   },
   build: {
     target: 'es2022',
-    sourcemap: true,
+    // Sem sourcemap no build de demonstracao: sao ~3,8 MB de arquivos que a
+    // Vercel serve e ninguem baixa, e o `dist` e o que vai publicado.
+    sourcemap: false,
   },
 });

@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 
+import { ROUTE_SEO } from '@/constants/seo';
+import { routeHead } from '@/lib/route-head';
+
 import { WalletsScreen } from '@/features/wallets/components/wallets-screen';
 
 /**
@@ -10,5 +13,6 @@ import { WalletsScreen } from '@/features/wallets/components/wallets-screen';
  * que a tela de pagamento le — mesma query, mesma entrada de cache.
  */
 export const Route = createFileRoute('/_private/_account/carteiras')({
+  head: () => routeHead(ROUTE_SEO.wallets),
   component: WalletsScreen,
 });

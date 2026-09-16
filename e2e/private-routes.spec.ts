@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 import { openProfileFromMenu, signIn, submitLogin, USERS } from './support/auth';
 import { expireSessions, startApp } from './support/mocks';

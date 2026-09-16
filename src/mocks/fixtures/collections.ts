@@ -112,6 +112,25 @@ export const ARTWORK_FILES: Record<ArtworkKey, string> = {
   'golden-headphones': '/nfts/golden-beat-207.png',
 };
 
+/**
+ * Descricao de cada arte, para a alternativa textual das imagens.
+ *
+ * Fica junto do arquivo, e nao no molde do `imageAlt`, porque quatro artes
+ * servem nove NFTs: descrever a PECA e o que diferencia uma da outra para quem
+ * nao enxerga — o nome e a colecao ja vem do proprio item, e sozinhos fariam
+ * quatro imagens distintas soarem iguais.
+ */
+export const ARTWORK_DESCRIPTIONS: Record<ArtworkKey, string> = {
+  'emerald-varsity':
+    'retrato de um macaco de pelagem castanha com oculos redondos escuros, jaqueta colegial verde e creme e um pingente de esmeralda, sobre fundo verde claro',
+  'violet-bucket':
+    'retrato de um macaco de pelagem cinza com chapeu bucket verde-oliva e moletom roxo de capuz, sobre fundo creme',
+  'ivory-blazer':
+    'retrato de um macaco de pelagem escura com brinco de argola dourado, gola rulê verde-escura e blazer marfim, sobre fundo verde acinzentado',
+  'golden-headphones':
+    'retrato de um macaco de pelagem alaranjada com fones de ouvido verdes e jaqueta bomber creme, sobre fundo circular verde claro',
+};
+
 /** Descricao do fundo da arte, usada como atributo do detalhe. */
 export const COLLECTION_BACKGROUNDS: Record<string, string> = Object.fromEntries(
   COLLECTION_FIXTURES.map((collection) => [collection.id, collection.background]),

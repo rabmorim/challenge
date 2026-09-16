@@ -18,4 +18,6 @@ export const FAVORITES_COPY = {
   emptyTitle: 'Você ainda não favoritou nenhum NFT.',
   emptyDescription: 'Explore o catálogo e toque no coração para guardar o que gostar.',
   listTitle: 'Meus favoritos',
+  /** Nome da grade, só para leitor de tela — fecha a ordem `h1 → h2 → h3`. */
+  gridLabel: 'NFTs favoritados',
 } as const;

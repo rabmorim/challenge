@@ -36,6 +36,7 @@ export function NftGrid({ items, favorites, isRefreshing }: NftGridProps) {
             isFavorite={favorites.favoriteIds.has(nft.id)}
             isFavoritePending={favorites.pendingNftId === nft.id}
             onToggleFavorite={favorites.toggleFavorite}
+            hasPriorityImage={index === 0}
           />
         </li>
       ))}

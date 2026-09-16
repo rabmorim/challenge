@@ -55,7 +55,8 @@
       "env": { "node": true, "browser": false },
       "rules": {
         "no-console": "off",
-        "eslint/no-await-in-loop": "off"
+        "eslint/no-await-in-loop": "off",
+        "react/rules-of-hooks": "off"
       }
     }
   ]

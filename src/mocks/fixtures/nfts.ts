@@ -2,6 +2,7 @@ import { NETWORKS } from '@/constants/network';
 import { RARITY_LABELS } from '@/features/catalog/constants/catalog';
 import type { NftTrait } from '@/features/catalog/types/nft';
 import {
+  ARTWORK_DESCRIPTIONS,
   ARTWORK_FILES,
   COLLECTION_BACKGROUNDS,
   COLLECTION_CONTRACT_ADDRESSES,
@@ -780,8 +781,10 @@ function buildTraits(spec: NftSpec, collectionName: string): NftTrait[] {
  * todo carregamento de pagina, e pagar a semeadura inteira so para tirar um
  * hash acrescentaria latencia visivel ao primeiro render.
  *
- * O caminho do arquivo entra resolvido de proposito — renomear uma arte sem
- * mexer nas especificacoes tambem precisa invalidar o estado persistido.
+ * O caminho do arquivo e a DESCRICAO da arte entram resolvidos de proposito —
+ * renomear ou redescrever uma arte sem mexer nas especificacoes tambem precisa
+ * invalidar o estado persistido, senao um navegador com o acervo antigo
+ * continuaria servindo a alternativa textual de antes.
  *
  * A colecao e a contagem de avaliacoes entram pelo mesmo motivo: mudar a que
  * colecao um item pertence muda quem aparece em "Mais desta colecao" e nos
@@ -794,6 +797,7 @@ export function getNftSeedIdentity(): (string | number)[][] {
   return NFT_SPECS.map((spec) => [
     spec.slug,
     ARTWORK_FILES[spec.artwork],
+    ARTWORK_DESCRIPTIONS[spec.artwork],
     spec.price,
     spec.editionTotal,
     spec.collectionId,
@@ -844,7 +848,7 @@ export function buildNftFixtures(): NftRecord[] {
       previousPrice: spec.previousPrice,
       rarity: spec.rarity,
       imageUrl: ARTWORK_FILES[spec.artwork],
-      imageAlt: `Arte do NFT ${spec.name}, da coleção ${collectionName}`,
+      imageAlt: `${spec.name}, da coleção ${collectionName}: ${ARTWORK_DESCRIPTIONS[spec.artwork]}`,
       edition: {
         total: spec.editionTotal,
         available: spec.editionAvailable,

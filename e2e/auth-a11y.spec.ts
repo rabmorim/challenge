@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 import { isDesktopViewport, USERS } from './support/auth';
 import { startApp } from './support/mocks';

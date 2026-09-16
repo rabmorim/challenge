@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 import { fillWalletForm, openWallets, readWallets, submitWallet, VALID_WALLET } from './support/account';
 import { signIn, switchAccount, USERS } from './support/auth';

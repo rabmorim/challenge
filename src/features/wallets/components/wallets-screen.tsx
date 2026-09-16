@@ -36,6 +36,10 @@ export function WalletsScreen() {
 
   return (
     <div className="flex flex-col gap-10">
+      {/* O frame não desenha o nome da seção fora da barra lateral, mas a
+          página precisa de um cabeçalho de nível um para quem navega por
+          marcos — daí o título existir só para o leitor de tela. */}
+      <h1 className="sr-only">{WALLETS_COPY.sectionLabel}</h1>
       <LiveRegion testId="wallets-status" message={wallets.announcement} />
       <PrimaryWalletSection wallets={wallets} />
       <SecondaryWalletSection wallets={wallets} />

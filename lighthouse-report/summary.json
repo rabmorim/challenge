@@ -1,0 +1,62 @@
+[
+  {
+    "page": "inicio",
+    "profile": "mobile",
+    "scores": {
+      "performance": 81,
+      "accessibility": 96,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "lcpMs": 4097,
+      "cls": 0,
+      "tbtMs": 256
+    }
+  },
+  {
+    "page": "inicio",
+    "profile": "desktop",
+    "scores": {
+      "performance": 98,
+      "accessibility": 97,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "lcpMs": 1144,
+      "cls": 0.007,
+      "tbtMs": 7
+    }
+  },
+  {
+    "page": "detalhe",
+    "profile": "mobile",
+    "scores": {
+      "performance": 83,
+      "accessibility": 97,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "lcpMs": 4146,
+      "cls": 0.036,
+      "tbtMs": 205
+    }
+  },
+  {
+    "page": "detalhe",
+    "profile": "desktop",
+    "scores": {
+      "performance": 98,
+      "accessibility": 97,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "lcpMs": 1120,
+      "cls": 0.005,
+      "tbtMs": 0
+    }
+  }
+]

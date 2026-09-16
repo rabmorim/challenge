@@ -25,6 +25,11 @@ export function CheckoutDesktop({ checkout }: CheckoutLayoutProps) {
 
   return (
     <div className="mx-auto flex max-w-(--container-page) flex-col gap-8 px-6 pt-8 pb-16 xl:px-0">
+      {/* O frame de 1440 não desenha o nome da tela (ele vive na trilha e nos
+          títulos das duas colunas). O `h1` existe só para o leitor de tela —
+          sem ele a página não tem cabeçalho de nível um. O frame de 414 o
+          desenha (`CheckoutMobile`). */}
+      <h1 className="sr-only">{CHECKOUT_COPY.mobileTitle}</h1>
       <CheckoutBreadcrumb />
       <LiveRegion testId="checkout-live-region" message={checkout.liveMessage} politeness="assertive" />
 

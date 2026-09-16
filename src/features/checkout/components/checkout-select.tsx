@@ -1,5 +1,6 @@
 import { ChevronDownIcon } from 'lucide-react';
 
+import { FOCUS_RING_CLASS } from '@/constants/a11y';
 import type { CheckoutSelectProps } from '@/features/checkout/types/checkout-components';
 import { cn } from '@/lib/utils';
 
@@ -39,6 +40,7 @@ export function CheckoutSelect({
         }}
         className={cn(
           'text-body rounded-control border-input w-full appearance-none border bg-transparent px-4 py-3 pr-10 leading-none outline-none',
+          FOCUS_RING_CLASS,
           'focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-60',
           'aria-invalid:border-destructive',
           value === '' ? 'text-tan/60' : 'text-foreground',

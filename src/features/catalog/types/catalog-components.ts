@@ -25,6 +25,11 @@ export interface NftCardProps {
   isFavorite: boolean;
   isFavoritePending: boolean;
   onToggleFavorite: (nftId: string) => void;
+  /**
+   * Marca a arte como prioritária no carregamento. Vale para o PRIMEIRO card da
+   * grade, que é o elemento LCP da Início — ver `NftGrid`.
+   */
+  hasPriorityImage?: boolean;
 }
 
 /** Props da faixa de ações sobre a arte do card. */

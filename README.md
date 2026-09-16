@@ -4,22 +4,25 @@ Marketplace de NFTs com fluxos de descoberta, compra e conta do colecionador, em
 desktop e mobile. Todo o backend é **simulado** (MSW): não há blockchain, carteira
 ou gateway de pagamento reais.
 
-> **Status: Fase 6 — conta do colecionador.** Sobre a camada de rede da Fase 1,
-> a sessão da Fase 2, o catálogo/detalhe/favoritos da Fase 3, o carrinho da
-> Fase 4 e o pagamento/confirmação da Fase 5, esta fase entrega a **área da
-> conta**: `/perfil` e `/carteiras` sob a barra lateral "Meu perfil", ambas
-> privadas e com o mesmo guard.
+**Repositório:** <https://github.com/rabmorim/challenge>
+**Aplicação publicada:** <https://challenge-tau-rose.vercel.app/>
+
+> **Status: Fase 7 — acessibilidade, performance e entrega.** Sobre a camada de
+> rede da Fase 1, a sessão da Fase 2, o catálogo/detalhe/favoritos da Fase 3, o
+> carrinho da Fase 4, o pagamento/confirmação da Fase 5 e a conta da Fase 6,
+> esta fase fecha a entrega: auditoria de acessibilidade ponta a ponta (9 telas
+> × 4 viewports, com axe-core), reauditoria do Lighthouse do zero, regressão
+> visual completa e a documentação de entrega.
 >
-> No perfil, os dados do frame, o avatar (troca simulada com prévia e remoção) e
-> a **troca de senha**, com a senha atual incorreta voltando da API direto no
-> campo. Nas carteiras, cadastro e edição da **principal e da secundária**, com o
-> atalho "Igual à carteira principal" — que copia tudo menos o endereço, porque
-> o servidor recusa endereço repetido. As carteiras salvas aqui são as **mesmas**
-> que o pagamento lê: mesma query, mesma entrada de cache.
+> O que mudou aqui: anel de foco por teclado em **todos** os primitivos que
+> apagavam o contorno nativo, cabeçalho de nível um nas telas que não tinham,
+> nome acessível dos chips de edição, foco preservado ao remover item do
+> carrinho, alternativas textuais que descrevem a arte, `<title>` e
+> `meta description` por rota, `robots.txt` e um esqueleto de arranque que tira
+> o primeiro paint da fila do worker do MSW.
 >
-> As seções que o enunciado §3 exclui (Atividade, Lista de interesse, Ofertas,
-> Arquivos baixados, Suporte) continuam desenhadas, mas marcadas como
-> indisponíveis — nunca navegam nem aparentam sucesso.
+> Detalhes e desvios assumidos: `ARCHITECTURE.md` §9b (acessibilidade) e §11
+> (performance).
 
 ---
 
@@ -64,12 +67,17 @@ A aplicação sobe em <http://localhost:5173> já com a camada de mocks ativa.
 | `pnpm lighthouse` | Sobe o preview, roda 3 auditorias por página/perfil e publica a mediana. |
 | `pnpm msw:init` | Regera `public/mockServiceWorker.js` (só após atualizar o MSW). |
 
-Relatórios: `playwright-report/` (HTML + traces das falhas) e `lighthouse-report/`
-(HTML e JSON de cada medição + `summary.json` com as medianas e LCP/CLS/TBT).
+Relatórios:
+
+- `lighthouse-report/` — **versionado**. HTML e JSON das 12 medições da última
+  auditoria, mais `summary.json` com as medianas e LCP/CLS/TBT.
+- `playwright-report/` — gerado por `pnpm test:e2e` (relatório HTML). Traces,
+  vídeo e screenshot ficam retidos **nas falhas** (`playwright.config.ts`); com
+  a suíte verde não há trace a guardar.
 
 `pnpm lighthouse` termina com código 1 se alguma mediana ficar abaixo da meta
-(Perf ≥ 90 · A11y ≥ 95 · BP ≥ 95 · SEO ≥ 90). A linha de base atual e a análise
-do que ainda não bate a meta estão no `ARCHITECTURE.md`.
+(Perf ≥ 90 · A11y ≥ 95 · BP ≥ 95 · SEO ≥ 90). Os números atuais e a análise do
+que ainda não bate a meta estão mais abaixo e no `ARCHITECTURE.md` §11.
 
 ---
 
@@ -273,21 +281,57 @@ Em celulares a barra lateral "Meu perfil" fica recolhida num `<details>` no topo
 da tela — não há frame de 414 para estas telas, e o desvio está documentado no
 `ARCHITECTURE.md` §5e.
 
+### Acessibilidade
+
+Auditada em 9 telas × 4 viewports (1440, 768, 390 e 720 — este último equivale
+a zoom de 200% sobre 1440), com **axe-core 4.13** injetado na página, percurso
+real de `Tab` medindo o anel de foco de cada parada, medição de overflow com
+`overflow-x` forçado a `visible` e hit-test das áreas de toque.
+
+Resultado: **0 violações do axe** nas 31 combinações, **0 px de overflow
+horizontal** em todas elas, foco preso e devolvido nos três diálogos (painel de
+autenticação, gaveta de filtros e confirmação de remoção) e shimmer parado sob
+`prefers-reduced-motion`.
+
+Dois desvios em relação ao layout ficam assumidos e documentados em
+`ARCHITECTURE.md` §9b: a borda de controle do Figma (`#3F2319`) tem 1,34:1 de
+contraste, abaixo dos 3:1 de WCAG 1.4.11; e o espaçamento entre os pontos de
+carrossel é o do Figma (16–18 px), abaixo dos 24 px de WCAG 2.5.8 — a área de
+toque real chega a 24 px por pseudo-elemento, que a auditoria estática não
+enxerga. Todas as cores de **texto** passam AA com folga (mínimo medido: 5,22:1).
 ### Auditoria de performance
 
 `pnpm lighthouse` sobe o `preview`, roda 3 medições por página e perfil e
-publica a mediana em `lighthouse-report/summary.json` (HTML e JSON por
-execução ao lado). Medição desta fase:
+publica a mediana em `lighthouse-report/summary.json`. Os relatórios **HTML e
+JSON de cada uma das 12 medições ficam versionados** em `lighthouse-report/`,
+junto da configuração (`lighthouse.config.mjs`) e do runner
+(`scripts/lighthouse.mjs`).
 
-| Página | Perfil | Perf | A11y | BP | SEO |
-| --- | --- | ---: | ---: | ---: | ---: |
-| Início | desktop | 99 | 100 | 100 | 92 |
-| Início | mobile | 87 | 96 | 100 | 92 |
-| Detalhe | desktop | 99 | 100 | 100 | 92 |
-| Detalhe | mobile | 82 | 100 | 100 | 92 |
+**Condições da auditoria:** build de produção (`pnpm build`) servido por
+`vite preview`, com os **mocks ativos** e o cenário **`default`** — o Chrome sobe
+com perfil novo a cada execução, então não há cenário gravado, `VITE_MOCK_SCENARIO`
+está vazio e nenhuma URL auditada carrega `?scenario=`. Nada é desligado para
+medir: worker do MSW, artes em PNG, fonte self-hosted e `socket.io-client` sobem
+como na entrega.
 
-A performance móvel abaixo da meta e as correções aplicadas depois da primeira
-medição estão analisadas no `ARCHITECTURE.md` §11.
+**Ambiente:** Windows 10 Pro 19045 · Node 22.13.1 · Lighthouse 13.4.1 ·
+HeadlessChrome 152 · `benchmarkIndex` ~2075. Móvel: 1638 kbps, RTT 150 ms,
+CPU ×4, viewport 412×823 @1.75. Desktop: preset `desktop-config` do Lighthouse.
+
+| Página | Perfil | Perf | A11y | BP | SEO | FCP | LCP | CLS | TBT |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Início | desktop | 98 | 97 | 100 | 100 | 426 ms | 1144 ms | 0,007 | 7 ms |
+| Início | mobile | 81 | 96 | 100 | 100 | 1433 ms | 4097 ms | 0 | 256 ms |
+| Detalhe | desktop | 98 | 98 | 100 | 100 | 372 ms | 1120 ms | 0,005 | 0 ms |
+| Detalhe | mobile | 83 | 97 | 100 | 100 | 1511 ms | 4146 ms | 0,036 | 205 ms |
+
+Metas: Perf ≥ 90 · A11y ≥ 95 · BP ≥ 95 · SEO ≥ 90 — e `pnpm lighthouse` termina
+com código 1 quando alguma mediana fica abaixo. **A Performance móvel (81/83) é
+a única categoria fora da meta.** O que esta fase melhorou foi o primeiro paint
+(FCP móvel 2485 ms → ~1450 ms); o LCP, que pesa 25% da nota, não se moveu porque
+depende da arte que só é baixada depois que o app renderiza. A causa-raiz, as
+correções aplicadas e a tentativa medida e descartada (`modulepreload`) estão em
+`ARCHITECTURE.md` §11.
 
 ### Contratos
 
@@ -337,13 +381,40 @@ API do compilador. A justificativa completa está no `ARCHITECTURE.md`.
 
 ## Deploy (Vercel)
 
+Aplicação publicada: <https://challenge-tau-rose.vercel.app/>
+
 `vercel.json` configura o projeto como SPA:
 
 - `rewrites` manda qualquer rota para `/index.html` — acesso direto e refresh
   funcionam em qualquer URL (a Vercel serve arquivos estáticos antes de aplicar
-  o rewrite, então os assets não são afetados);
+  o rewrite, então os assets, o `mockServiceWorker.js` e o `robots.txt` não são
+  afetados);
 - `installCommand` usa `--frozen-lockfile`;
 - fontes com `Cache-Control: immutable` e `mockServiceWorker.js` sem cache.
+
+**Os mocks vão no build publicado.** `.env.production` fixa
+`VITE_ENABLE_MOCKS=true`: não existe backend real neste projeto, então a
+demonstração roda com a mesma camada simulada do desenvolvimento — inclusive o
+Socket.IO, interceptado pelo MSW no construtor do `WebSocket`. A seleção de
+cenário por `?scenario=` e o reset funcionam igual em produção.
+
+### Checkout limpo
+
+A entrega roda a partir de um clone novo, sem serviço privado nem backend:
+
+```bash
+git clone https://github.com/rabmorim/challenge.git
+cd challenge
+pnpm install                 # usa o pnpm-lock.yaml versionado
+pnpm build                   # tsc -b + vite build
+pnpm preview                 # http://localhost:4173, com mocks
+
+pnpm dev                     # ou o servidor de desenvolvimento, também com mocks
+```
+
+`.env.development` e `.env.production` são versionados (não há segredo algum) e
+`public/mockServiceWorker.js` também, então nenhum passo extra é necessário —
+`pnpm msw:init` só é preciso ao atualizar a versão do MSW.
 
 ---
 

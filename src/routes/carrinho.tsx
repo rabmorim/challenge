@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 
+import { ROUTE_SEO } from '@/constants/seo';
+import { routeHead } from '@/lib/route-head';
+
 import { CartScreen } from '@/features/cart/components/cart-screen';
 
 /**
@@ -18,5 +21,6 @@ function CartRoute() {
 }
 
 export const Route = createFileRoute('/carrinho')({
+  head: () => routeHead(ROUTE_SEO.cart),
   component: CartRoute,
 });

@@ -22,11 +22,16 @@ export const DETAIL_COPY = {
   /**
    * Rótulo de um chip de edição.
    *
+   * Começa pelo texto VISÍVEL do chip (`1/50`) porque WCAG 2.5.3 exige que o
+   * nome acessível contenha o rótulo que aparece na tela — sem isso, quem
+   * comanda por voz não consegue dizer "clicar em um barra cinquenta".
+   *
    * @param total - Unidades cunhadas na edição.
    * @param name - Nome do NFT daquela edição.
    * @returns Rótulo acessível do chip.
    */
-  editionChipLabel: (total: number, name: string) => `Edição de ${String(total)} unidades — ${name}`,
+  editionChipLabel: (total: number, name: string) =>
+    `1/${String(total)} — Edição de ${String(total)} unidades, ${name}`,
 
   quantityLabel: 'Quantidade',
   quantityShort: 'Qtd.',

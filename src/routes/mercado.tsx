@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 
+import { ROUTE_SEO } from '@/constants/seo';
+import { routeHead } from '@/lib/route-head';
+
 import { nftListQueryOptions } from '@/features/catalog/api/catalog-queries';
 import { CatalogSearchBar } from '@/features/catalog/components/catalog-search-bar';
 import { CatalogSection } from '@/features/catalog/components/catalog-section';
@@ -29,6 +32,7 @@ function MarketplaceRoute() {
 }
 
 export const Route = createFileRoute('/mercado')({
+  head: () => routeHead(ROUTE_SEO.marketplace),
   validateSearch: validateCatalogSearch,
   loaderDeps: ({ search }) => ({ search }),
   loader: ({ context, deps }) => {

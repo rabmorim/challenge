@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 
+import { ROUTE_SEO } from '@/constants/seo';
+import { routeHead } from '@/lib/route-head';
+
 import { CheckoutScreen } from '@/features/checkout/components/checkout-screen';
 
 /**
@@ -18,5 +21,6 @@ function CheckoutRoute() {
 }
 
 export const Route = createFileRoute('/_private/pagamento')({
+  head: () => routeHead(ROUTE_SEO.checkout),
   component: CheckoutRoute,
 });

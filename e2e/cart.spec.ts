@@ -1,4 +1,6 @@
-import { expect, test, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
+
+import { expect, test } from './support/test';
 
 import { expectAuthPanelOpen, signIn, submitLogin, USERS } from './support/auth';
 import { emitNftUpdate, seedCart, startApp } from './support/mocks';

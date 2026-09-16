@@ -1,6 +1,7 @@
 import { Slider as SliderPrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
 
+import { FOCUS_RING_CLASS } from '@/constants/a11y';
 import { cn } from '@/lib/utils';
 
 /**
@@ -13,10 +14,18 @@ import { cn } from '@/lib/utils';
  * O Radix entrega o que o desenho sozinho não tem: papéis corretos, operação
  * por teclado (setas, Home/End) e `aria-valuetext` em cada polegar.
  *
+ * O anel de foco acompanha o `outline-none` do polegar: sem ele, o polegar
+ * focado por teclado não teria indicação nenhuma — o Figma não desenha o
+ * estado, mas operar a faixa pelo teclado sem saber qual ponta está selecionada
+ * é o mesmo que não poder operá-la.
+ *
  * @param props - Props do primitivo do Radix (valor, mínimo, máximo, passo).
  */
 function RangeSlider({ className, ...props }: ComponentProps<typeof SliderPrimitive.Root>) {
-  const thumbClassName = 'bg-primary block size-3.5 rounded-full outline-none disabled:opacity-60';
+  const thumbClassName = cn(
+    'bg-primary block size-3.5 rounded-full outline-none disabled:opacity-60',
+    FOCUS_RING_CLASS,
+  );
 
   return (
     <SliderPrimitive.Root

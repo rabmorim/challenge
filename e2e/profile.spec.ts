@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 import { chooseAvatar, openProfile } from './support/account';
 import { signIn, signOut, submitLogin, switchAccount, USERS } from './support/auth';

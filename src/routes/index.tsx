@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 
+import { ROUTE_SEO } from '@/constants/seo';
+import { routeHead } from '@/lib/route-head';
+
 import { nftListQueryOptions } from '@/features/catalog/api/catalog-queries';
 import { CatalogSearchBar } from '@/features/catalog/components/catalog-search-bar';
 import { CatalogSection } from '@/features/catalog/components/catalog-section';
@@ -39,6 +42,7 @@ function HomeRoute() {
 }
 
 export const Route = createFileRoute('/')({
+  head: () => routeHead(ROUTE_SEO.home),
   validateSearch: validateCatalogSearch,
   // Aquece o cache sem bloquear a navegação: o esqueleto aparece de imediato e
   // a listagem chega por cima. Em `preload` (foco/ponteiro) a resposta costuma

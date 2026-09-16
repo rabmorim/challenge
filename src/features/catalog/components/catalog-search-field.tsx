@@ -4,6 +4,7 @@ import { useId, useState } from 'react';
 
 import { ROUTES } from '@/constants/routes';
 import { CATALOG_COPY } from '@/features/catalog/constants/catalog-copy';
+import { cn } from '@/lib/utils';
 
 /**
  * Campo de busca em largura total do frame de 414.
@@ -38,7 +39,16 @@ export function CatalogSearchField() {
           {CATALOG_COPY.searchLabel}
         </label>
 
-        <div className="bg-card rounded-field relative flex h-[45px] items-center">
+        {/* O anel de foco fica na CAIXA, e não no `input`: o campo ocupa os
+            45px inteiros do frame, então um contorno nele mesmo desenharia um
+            retângulo dentro da caixa arredondada. Com `has-[:focus-visible]` o
+            indicador acompanha a moldura que a pessoa enxerga. */}
+        <div
+          className={cn(
+            'bg-card rounded-field relative flex h-[45px] items-center',
+            'has-[:focus-visible]:outline-ring has-[:focus-visible]:outline-solid has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2',
+          )}
+        >
           <SearchIcon
             className="text-icon-muted pointer-events-none absolute left-[14px] size-[18.33px]"
             aria-hidden="true"

@@ -1,4 +1,6 @@
-import { expect, test, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
+
+import { expect, test } from './support/test';
 
 import { expectAuthPanelOpen, signIn, signOut, USERS } from './support/auth';
 import { startApp, switchScenario } from './support/mocks';

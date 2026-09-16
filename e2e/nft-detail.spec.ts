@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 import { expectAuthPanelOpen } from './support/auth';
 import { emitNftUpdate, startApp } from './support/mocks';

@@ -1,5 +1,15 @@
 import type { NftListParams } from '@/features/catalog/types/catalog-query';
 
+/**
+ * Id do destino de foco da tela do carrinho.
+ *
+ * A lixeira que abre a confirmacao sai do DOM junto com a linha removida, entao
+ * o Radix nao tem para onde devolver o foco e ele cairia no `body`. O botao
+ * assume a devolucao (`onCloseAutoFocus`) e pousa aqui — pelo id, como um link
+ * de pular navegacao, e nao por prop atravessando tres componentes.
+ */
+export const CART_FOCUS_ANCHOR_ID = 'cart-focus-anchor';
+
 /** Quantidade minima de um item no carrinho — abaixo disso, remove-se o item. */
 export const MIN_ITEM_QUANTITY = 1;
 

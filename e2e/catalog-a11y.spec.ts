@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 import { startApp } from './support/mocks';
 
@@ -78,10 +78,20 @@ test.describe('acessibilidade do catálogo', () => {
   });
 
   test('as artes do catálogo têm alternativa textual', async ({ page }) => {
-    const images = page.getByTestId('nft-card').locator('img');
+    const cards = page.getByTestId('nft-card');
 
-    for (const image of await images.all()) {
-      await expect(image).toHaveAttribute('alt', /Arte do NFT/);
+    for (const card of await cards.all()) {
+      // A alternativa precisa DESCREVER a peça, e nao apenas repetir um rotulo
+      // generico: quatro artes servem nove NFTs, entao "arte do NFT X" faria
+      // imagens distintas soarem iguais. O contrato e "<nome>, da colecao <X>:
+      // <descricao da arte>" (ver ARTWORK_DESCRIPTIONS nas fixtures).
+      const name = (await card.getByRole('heading').innerText()).trim();
+      const alt = await card.locator('img').getAttribute('alt');
+
+      expect(alt).toContain(name);
+      expect(alt).toMatch(/, da coleção .+: .+/);
+      // Descricao de verdade, e nao so o nome repetido.
+      expect((alt ?? '').length).toBeGreaterThan(name.length + 40);
     }
   });
 

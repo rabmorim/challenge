@@ -1,0 +1,12 @@
+# KURIO — marketplace de NFTs (demonstração com backend simulado).
+# Existe como arquivo real porque, sem ele, o rewrite de SPA devolveria o
+# index.html neste caminho e o robots seria lido como HTML inválido.
+User-agent: *
+Allow: /
+
+# Rotas privadas da conta do colecionador: nada a indexar, o conteúdo depende
+# de sessão e a aplicação é renderizada no cliente.
+Disallow: /perfil
+Disallow: /carteiras
+Disallow: /favoritos
+Disallow: /pagamento

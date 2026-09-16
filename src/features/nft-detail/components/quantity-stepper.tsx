@@ -1,6 +1,7 @@
 import { MinusIcon, PlusIcon } from 'lucide-react';
 import { useId } from 'react';
 
+import { FOCUS_RING_CLASS } from '@/constants/a11y';
 import { MIN_ITEM_QUANTITY } from '@/features/cart/constants/cart';
 import { DETAIL_COPY } from '@/features/nft-detail/constants/detail';
 import type { QuantityStepperProps } from '@/features/nft-detail/types/detail-components';
@@ -85,6 +86,7 @@ export function QuantityStepper({
           }}
           className={cn(
             'bg-transparent text-center outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none',
+            FOCUS_RING_CLASS,
             isCompact ? 'text-tan w-5 text-[15px] leading-4 font-medium' : 'text-body-lg w-10',
           )}
         />

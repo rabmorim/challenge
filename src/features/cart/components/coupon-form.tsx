@@ -47,6 +47,11 @@ export function CouponForm({ quote, variant }: CouponFormProps) {
         }}
         className={cn(
           'border-primary flex items-stretch overflow-hidden border',
+          // O campo ocupa a caixa inteira e o `overflow-hidden` recortaria um
+          // contorno desenhado nele; o anel do CAMPO fica portanto na moldura.
+          // O anel do botão continua sendo dele, mas desenhado para dentro
+          // (`outline-offset` negativo), pelo mesmo recorte.
+          'has-[input:focus-visible]:outline-ring has-[input:focus-visible]:outline-solid has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2',
           isPanel ? 'rounded-full' : 'rounded-control h-10',
         )}
       >
@@ -79,7 +84,7 @@ export function CouponForm({ quote, variant }: CouponFormProps) {
           data-testid="coupon-apply"
           disabled={quote.isApplyingCoupon}
           className={cn(
-            'text-[15px] font-bold',
+            'text-[15px] font-bold focus-visible:outline-offset-[-2px]',
             // Largura fixa no frame de 1440: é o que sobra para o campo caber
             // o texto de exemplo inteiro ("Digite o código promocional...").
             isPanel ? 'accent-gradient rounded-full px-6 py-4' : 'w-[102px] rounded-none px-0',

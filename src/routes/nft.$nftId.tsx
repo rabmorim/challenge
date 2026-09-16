@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 
+import { ROUTE_SEO } from '@/constants/seo';
+import { routeHead } from '@/lib/route-head';
+
 import { nftDetailQueryOptions } from '@/features/catalog/api/catalog-queries';
 import { NftDetailScreen } from '@/features/nft-detail/components/nft-detail-screen';
 
@@ -20,6 +23,7 @@ function NftDetailRoute() {
 }
 
 export const Route = createFileRoute('/nft/$nftId')({
+  head: () => routeHead(ROUTE_SEO.nftDetail),
   loader: ({ context, params }) => {
     void context.queryClient.prefetchQuery(nftDetailQueryOptions(params.nftId));
   },

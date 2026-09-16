@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 
+import { ROUTE_SEO } from '@/constants/seo';
+import { routeHead } from '@/lib/route-head';
+
 import { ProfileScreen } from '@/features/profile/components/profile-screen';
 
 /**
@@ -10,5 +13,6 @@ import { ProfileScreen } from '@/features/profile/components/profile-screen';
  * a sessao e resolvida em `beforeLoad`, antes de qualquer render.
  */
 export const Route = createFileRoute('/_private/_account/perfil')({
+  head: () => routeHead(ROUTE_SEO.profile),
   component: ProfileScreen,
 });

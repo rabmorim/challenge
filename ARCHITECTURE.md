@@ -1416,6 +1416,146 @@ com `fetchPriority="high"`: é o elemento LCP da Início.
 | "Igual à carteira principal" não copia o endereço | O servidor recusa endereço repetido do mesmo dono; copiá-lo ofereceria um atalho que falharia no envio. A dica ao lado do controle diz isso. |
 | Seletor de domínio ENS com 152px (frame: ~76px) | A lista tem domínios mais longos que o `.eth` desenhado. Na medida do frame, `.kurio.eth` apareceria cortado, e um controle que não deixa ler a própria escolha é pior que a diferença de largura. |
 | Anel de foco declarado no primitivo `Input` | O `outline-none` do campo é uma utilidade e vencia a regra `:focus-visible` da camada base: o campo focado ficava só com a troca de cor da borda. Ver §5e. |
+| Anel de foco declarado em TODOS os primitivos que apagam o contorno | Mesma causa do `Input`, encontrada em escala na auditoria da Fase 7: `Button`, polegares do slider, abas, `select`, `textarea`, busca do celular, cupom e os dois seletores de quantidade. Ver §9b. |
+| `h1` só para leitor de tela no Carrinho e no Pagamento de 1440, e nas Carteiras | Os frames abrem na trilha (ou na barra lateral), sem título de tela. O `h1` invisível dá o nome da página a quem navega por marcos sem mudar um pixel. Ver §9b. |
+| Seção `sr-only` na grade de `/favoritos` | O card do catálogo abre em `h3`; sem um `h2` a ordem pularia de `h1` para `h3`. É a mesma solução já usada no catálogo. |
+| Nome acessível dos chips de edição começa pelo texto visível | WCAG 2.5.3 (Label in Name): `1/50` precisa estar contido no nome, senão comando por voz não alcança o chip. Ver §9b. |
+| Alternativa textual descreve a ARTE, não só o nome | Quatro artes servem nove NFTs; repetir nome e coleção faria quatro imagens distintas soarem iguais para quem não enxerga. As descrições vivem em `ARTWORK_DESCRIPTIONS` e entram na assinatura da semeadura. |
+| Área de toque de 24px nos pontos de carrossel, por pseudo-elemento | O indicador continua com os 8–10px do frame; o alvo cresce fora do fluxo. O **passo** entre pontos permanece o do Figma — desvio de a11y assumido e medido em §9b. |
+| Borda de controle abaixo do contraste de 1.4.11 | `#3F2319` sobre o fundo dá 1,34:1, contra os 3:1 exigidos para o limite perceptível de um campo. É o valor confirmado do Figma. Ver §9b. |
+| Esqueleto de arranque embutido no `index.html` | Não existe no Figma. Sem ele, a espera pelo worker do MSW (necessária pela ordem de interceptação do WebSocket) valeria também para o primeiro pixel. Ver §11. |
+
+---
+
+## 9b. Acessibilidade — auditoria da Fase 7
+
+Varredura com **axe-core 4.13** injetado em 9 telas × 4 viewports (1440, 768,
+390 e 720 — este último equivale a zoom de 200% sobre 1440), percurso real de
+`Tab` medindo o anel de foco computado de cada parada, medição de overflow com
+`overflow-x` forçado a `visible` e hit-test das áreas de toque.
+
+### O `outline-none` dos primitivos apagava o foco por teclado
+
+O achado de maior alcance. A regra `:focus-visible` do tema vive em
+`@layer base`; a utilidade `outline-none` vive em `@layer utilities`, e **no
+Tailwind v4 a camada de utilidades vence a base independentemente de
+especificidade**. É o mesmo problema já registrado para o `Input` na Fase 6 —
+mas a correção de lá tinha ficado só no `Input`.
+
+Medição: **33 controles** chegavam ao foco com `outline-style: none`, em todas
+as telas — "Entrar", "Confirmar compra", "Salvar carteira", os polegares da
+faixa de preço, os quatro `select`, a `textarea`, a busca do celular, o campo de
+cupom, os dois seletores de quantidade, as abas e o painel de abas.
+
+A correção é uma constante única (`FOCUS_RING_CLASS`, em `src/constants/a11y.ts`)
+aplicada junto de cada `outline-none`. Um lugar só, para o indicador não
+divergir entre primitivos. Dois controles pedem tratamento próprio:
+
+- **Busca do celular** — o `input` ocupa os 45px inteiros da caixa, então o anel
+  fica na moldura (`has-[:focus-visible]`): um contorno no campo desenharia um
+  retângulo dentro da caixa arredondada.
+- **Cupom** — a moldura tem `overflow-hidden`, que recortaria o anel do campo e
+  o do botão. O do campo vai para a moldura (`has-[input:focus-visible]`); o do
+  botão é desenhado para dentro (`outline-offset` negativo), o que mantém os
+  dois distinguíveis.
+
+`DropdownMenuItem` e `DropdownMenuRadioItem` continuam sem anel de propósito:
+não são paradas de `Tab` (o Radix usa foco rotativo por setas) e o
+`data-[highlighted]` já troca fundo e cor a cada movimento.
+
+### Cabeçalhos
+
+`page-has-heading-one` reprovava em três telas e `heading-order` em uma. Todas
+resolvidas com títulos **só para leitor de tela**, sem alterar o desenho:
+
+| Tela | Situação | Correção |
+| --- | --- | --- |
+| Carrinho (≥768) | O `h1` só existia no `CartMobileHeader` | `h1` `sr-only` antes da trilha |
+| Pagamento (≥768) | O frame abre na trilha; o `h1` só existe em 414 | `h1` `sr-only` antes da trilha |
+| Carteiras | O `h1` existia apenas no ramo de erro | `h1` `sr-only` no estado de sucesso |
+| `/favoritos` | `h1` → `h3` (o card do catálogo abre em `h3`) | `section` + `h2` `sr-only` na grade |
+
+Os `sr-only` do projeto são `position: absolute`, então não são itens de flex e
+**não abrem vão nenhum** nos containers com `gap` — nenhuma medida muda.
+
+### Foco depois de remover um item do carrinho
+
+Medido: ao confirmar a remoção, `document.activeElement` caía no `<body>`. O
+Radix devolveria o foco ao gatilho, mas a lixeira sai do DOM junto com a linha.
+`CartFocusAnchor` é um destino invisível e fora da ordem de tabulação,
+compartilhado pelas duas composições (só uma existe no DOM por vez); a tela
+embrulha `removeItem` para pousar o foco nele. O anúncio da região viva
+("… removido do carrinho.") já existia e foi preservado.
+
+### Nome acessível dos chips de edição (WCAG 2.5.3)
+
+O chip mostra `1/50` e o nome acessível era "Edição de 50 unidades — Nome": o
+texto visível não estava contido no nome, então comando por voz não alcançava o
+controle. O rótulo passou a começar pelo texto visível.
+
+### Contraste — medições
+
+Todas as cores de **texto** passam AA com folga em qualquer superfície do tema:
+
+| Cor | sobre `#140D0A` | sobre `#241612` | sobre `#38220F` | sobre `#2F1D15` |
+| --- | ---: | ---: | ---: | ---: |
+| Texto `#F5F1EB` | 17,10 | 15,57 | 13,29 | 14,28 |
+| Tan `#CFB28C` | 9,53 | 8,68 | 7,41 | 7,95 |
+| Link `#E89B55` | 8,47 | 7,72 | 6,59 | 7,08 |
+| Accent `#D28A4C` | 6,85 | 6,24 | 5,33 | 5,72 |
+| Ícone `#B39463` | 6,72 | 6,12 | 5,22 | 5,61 |
+
+Texto escuro `#140D0A` sobre o accent: **6,85**. O anel de foco (accent sobre o
+fundo) dá **6,85**, bem acima dos 3:1 que 1.4.11 pede para indicador.
+
+**Desvio assumido.** A borda de controle `#3F2319` sobre o fundo dá **1,34:1** e
+o filete de seção `#432C1A`, **1,48:1** — abaixo dos 3:1 de **1.4.11 (non-text
+contrast)** para o limite perceptível de um campo. São os valores confirmados do
+Figma, e clareá-los mudaria a aparência de todos os formulários e da tabela do
+carrinho. Mantidos como estão porque o campo continua identificável pelo rótulo
+associado, pelo `placeholder` e, no foco, pela borda accent (6,85:1) somada ao
+anel de 2px. O enunciado §8 permite o desvio desde que documentado — é este
+parágrafo.
+
+### Área de toque (WCAG 2.5.8)
+
+Hit-test real, e não só `getBoundingClientRect`:
+
+| Controle | Caixa | Toque antes | Toque depois |
+| --- | --- | --- | --- |
+| Pontos do herói | 8×8 | 24×24 (passo horizontal 16px) | inalterado |
+| Pontos de carrossel ("Mais desta coleção", "Colecionadores também viram") | 10×10 | 10×10 | 26×26 (passo horizontal 18px) |
+
+A expansão vem de um pseudo-elemento (`TOUCH_TARGET_EXPANSION_CLASS`) que cresce
+**fora do fluxo**: o indicador continua com a medida do Figma e a fila não muda
+de largura.
+
+**Desvio assumido.** O *passo* entre pontos continua o do Figma (16–18px), abaixo
+dos 24px que a regra pede quando os alvos se tocam — é por isso que o Lighthouse
+mantém `target-size` reprovado e a categoria fica em 96–98 em vez de 100.
+Afastar os pontos para 24px alteraria a composição de dois controles
+desenhados; entre a meta já atingida (≥95) e a fidelidade, ficou a fidelidade.
+O pseudo-elemento não é visível para a auditoria estática, mas é o que a pessoa
+acerta com o dedo.
+
+### Alternativas textuais
+
+As quatro artes exportadas do Figma servem nove NFTs, então repetir nome e
+coleção faria peças distintas soarem idênticas. `ARTWORK_DESCRIPTIONS`
+(`src/mocks/fixtures/collections.ts`) descreve cada arte, e o `imageAlt` passou a
+ser "Nome, da coleção X: descrição". A descrição entra em `getNftSeedIdentity`,
+para que um navegador com o acervo antigo não continue servindo o texto anterior.
+
+### O que já estava correto
+
+| Item | Evidência |
+| --- | --- |
+| Foco preso e devolvido em painel de autenticação, gaveta de filtros e confirmação de remoção | 40 `Tab` sem vazamento nos três; `Esc` devolve a "Entrar", a "Filtros" e à própria lixeira. O recibo usa `useReturnFocus` |
+| Sem overflow horizontal em 390 / 768 / 1440 | `scrollWidth − clientWidth = 0` nas 31 combinações, medido com `body{overflow-x}` forçado a `visible` — a regra do `globals.css` não mascara nada |
+| Zoom 200% (720×450) | Início, Detalhe, Carrinho e Pagamento sem overflow e sem perda de conteúdo |
+| Reduced motion | Shimmer medido em `0.00001s` / 1 iteração com `prefers-reduced-motion: reduce` |
+| `label` + erro associados | `FormField` centraliza `htmlFor`, `aria-describedby`, `aria-invalid` e `aria-required`; o erro traz ícone além da cor |
+| `aria-live` | Uma região viva por tela em carrinho, pagamento, detalhe, catálogo, perfil, carteiras e favoritos; `role="alert"` nos bloqueios; `sonner` com ícone por estado |
 
 ---
 
@@ -1546,10 +1686,35 @@ As afirmações de isolamento leem os **dois** lados: o dado do segundo usuário
 está na tela e o do primeiro não, e `readWallets` confirma pelo servidor o que
 ficou gravado, sem depender do que a tela mostra.
 
+A Fase 7 não acrescenta casos — ela audita o que existe. Um contrato de teste
+mudou junto com a correção de acessibilidade: `catalog-a11y.spec.ts` deixou de
+exigir o prefixo literal "Arte do NFT" na alternativa textual e passou a exigir
+o contrato novo — nome do item, coleção e uma **descrição da arte** mais longa
+que o próprio nome. O teste antigo passaria com quatro imagens descritas de
+forma idêntica, que é exatamente o problema que a correção resolveu.
+
+O esqueleto de arranque do `index.html` (§11) não muda nada para a suíte: o
+helper `startApp` espera pelo marcador `app-shell`, que só existe depois que o
+React monta e substitui o esqueleto.
+
 As baselines visuais são versionadas com sufixo de plataforma
 (`-visual-win32.png`), porque a renderização de fonte difere entre sistemas.
 Em outro sistema operacional elas precisam ser regeradas uma vez
 (`pnpm test:visual --update-snapshots`) e versionadas ao lado das atuais.
+
+**Navegação resiliente a uma corrida do ambiente** (`e2e/support/test.ts`). Os
+três workers compartilham a mesma origem e, com ela, o mesmo registro de service
+worker do MSW. Quando o registro de um contexto assume o controle da origem
+enquanto outro contexto tem uma navegação de documento em voo, o Chromium
+cancela essa navegação com `net::ERR_ABORTED` — o `page.goto` falha sem que nada
+da aplicação tenha mudado, e o mesmo arquivo passa 15 de 15 vezes rodando
+sozinho. O `test` do projeto estende o do Playwright e repete **apenas a
+navegação cancelada**, uma vez. Qualquer outro erro continua subindo, e as
+asserções seguem intactas: `ERR_ABORTED` em navegação de documento não é estado
+que a aplicação produza (ela não chama `location.replace` no carregamento, e o
+TanStack Router navega pela History API, que não cancela documento). A escolha
+foi essa e não `retries` na configuração porque repetir o teste inteiro
+mascararia flutuação de verdade; repetir a navegação trata a corrida conhecida.
 
 **Isolamento de estado.** Cada teste roda em um contexto de navegador novo
 (storage vazio) e o helper `startApp` (`e2e/support/mocks.ts`) seleciona o
@@ -1569,69 +1734,180 @@ publica a **mediana** por categoria e registra LCP, CLS e TBT em
 `lighthouse-report/summary.json`. O processo termina com código 1 se alguma
 mediana ficar abaixo da meta (Perf ≥ 90 · A11y ≥ 95 · BP ≥ 95 · SEO ≥ 90).
 
-### Medição da Fase 3 (telas reais)
+### Ambiente e condições da auditoria
 
-Mediana de 3 execuções por página e perfil, build de produção com os mocks
-ligados (o cenário `default`), em `vite preview`:
+| Item | Valor |
+| --- | --- |
+| Sistema | Windows 10 Pro 19045 |
+| Node.js | 22.13.1 |
+| Lighthouse | 13.4.1 (`lighthouse` + `chrome-launcher`) |
+| Navegador | HeadlessChrome 152 (`--headless=new`) |
+| `benchmarkIndex` da máquina | ~2075 |
+| Build auditado | `pnpm build` (produção) servido por `vite preview` em `http://localhost:4173` |
+| Mocks | **ativos** (`VITE_ENABLE_MOCKS=true`, `.env.production`) |
+| Cenário | `default` — o Chrome sobe com perfil novo a cada execução, então não há cenário gravado em `localStorage`, `VITE_MOCK_SCENARIO` está vazio e nenhuma URL auditada carrega `?scenario=` |
+| Throttling móvel | 1638 kbps · RTT 150 ms · CPU ×4 · viewport 412×823 @1.75 |
+| Perfil desktop | preset `desktop-config` do próprio Lighthouse |
 
-| Página | Perfil | Perf | A11y | BP | SEO | LCP | CLS | TBT |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Início | desktop | **99** | **100** | 100 | 92 | 969 ms | 0.008 | 0 ms |
-| Início | mobile | **87** | **96** | 100 | 92 | 3523 ms | 0.011 | 132 ms |
-| Detalhe | desktop | **99** | **100** | 100 | 92 | 921 ms | 0.004 | 0 ms |
-| Detalhe | mobile | **82** | **100** | 100 | 92 | 3960 ms | 0 | 194 ms |
+Nada é desligado para a medição: o worker do MSW, as artes em PNG, a fonte
+self-hosted e o `socket.io-client` sobem exatamente como na entrega.
 
-**O que a auditoria encontrou e o que foi corrigido.** A primeira medição das
-telas reais reprovou em três pontos, todos consertados:
+### Medição da Fase 7
 
-| Problema | Medida | Correção |
-| --- | --- | --- |
-| CLS 0.237 no detalhe | O esqueleto cobria só a primeira dobra; ao chegar o recurso, abas e "mais desta coleção" empurravam o rodapé. | O esqueleto passou a reservar a **página inteira** (CLS 0.004). |
-| `aria-valid-attr-value` na Início | O recorte do catálogo usava `tablist` do Radix sem painéis: cada gatilho apontava `aria-controls` para um id inexistente. | Viraram botões de alternância (`aria-pressed`) — o que eles mudam é a consulta, não um painel. |
-| `heading-order` na Início | A sidebar abria em `h3` sem um `h2` antes. | Títulos só para leitor de tela nas seções de catálogo e promoções. |
-| `target-size` na Início | Os pontos do herói tinham 10px de área de toque. | O ponto continua com 10px; o botão passou a 24px. |
+Mediana de 3 execuções por página e perfil:
 
-Com isso a Início saiu de A11y 91 para 96 e o detalhe para 100, e o detalhe no
-desktop foi de 87 para 99.
+| Página | Perfil | Perf | A11y | BP | SEO | FCP | LCP | CLS | TBT |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Início | desktop | **98** | **97** | **100** | **100** | 426 ms | 1144 ms | 0,007 | 7 ms |
+| Início | mobile | **81** | **96** | **100** | **100** | 1433 ms | 4097 ms | 0 | 256 ms |
+| Detalhe | desktop | **98** | **98** | **100** | **100** | 372 ms | 1120 ms | 0,005 | 0 ms |
+| Detalhe | mobile | **83** | **97** | **100** | **100** | 1511 ms | 4146 ms | 0,036 | 205 ms |
 
-**Por que mobile ainda fica em 87 / 82.** A causa é a mesma das fases
-anteriores, agora medida com conteúdo real: o worker do MSW (~177 kB do bundle
-`browser`, 101 kB deles sem uso na primeira tela) é carregado e **aguardado
-antes do primeiro render**, porque é o que garante que o `socket.io-client`
-encontre o `WebSocket` já interceptado (seção 6). Sob o throttling móvel do
-Lighthouse isso adia o primeiro paint, e a arte do herói — o elemento LCP — só
-começa a baixar depois disso. No desktop, sem throttling, o mesmo caminho dá 99.
+São os números dos relatórios versionados em `lighthouse-report/`. A dispersão
+entre as três execuções de cada célula é pequena (Início móvel: 81/81/82;
+Detalhe móvel: 83/82/83), mas o TBT móvel oscila o bastante — entre ~190 ms e
+~260 ms na mesma máquina — para mover a Performance em um ponto de uma
+auditoria para outra.
 
-Uma tentativa de atalho foi medida e **descartada**: pré-carregar a arte do
-herói (`<link rel="preload" as="image">`) piorou o LCP móvel de 3,5 s para
-5,1 s, porque a imagem de 350 kB passou a disputar banda com o JavaScript
-crítico no perfil móvel. Fica registrado para não ser tentado de novo.
+Comparação com a medição de abertura da fase (mesmo código da Fase 6, mesmo
+runner, mesma máquina):
 
-O caminho que sobra é o já previsto: separar o shell da página do carregamento
-do worker (pintar cabeçalho e esqueletos antes de `startMocks()`, adiando a
-espera para o primeiro uso de rede) e servir as artes em formato moderno com
-tamanhos por viewport — hoje a arte do herói é um PNG de 450×450 exibido a
-120px no celular, porque é o único arquivo que o Figma entregou (ver §9). Os
-dois são trabalho da fase de performance; CLS e TBT já estão folgados, e
-Best Practices está em 100 nos quatro cenários.
+| Página · perfil | Perf | A11y | SEO | FCP | LCP |
+| --- | --- | --- | --- | --- | --- |
+| Início · mobile | 81 → 81 | 96 → 96 | 92 → **100** | 2485 → **1433 ms** | 4014 → 4097 ms |
+| Início · desktop | 98 → 98 | 97 → 97 | 92 → **100** | 665 → **426 ms** | 1148 → 1144 ms |
+| Detalhe · mobile | 81 → **83** | 97 → 97 | 92 → **100** | 2477 → **1511 ms** | 4113 → 4146 ms |
+| Detalhe · desktop | 98 → 98 | 97 → **98** | 92 → **100** | 633 → **372 ms** | 1080 → 1120 ms |
 
-**SEO 92 nos quatro** é estrutural desta entrega: a aplicação é renderizada no
-cliente e a auditoria aponta a ausência de conteúdo no HTML inicial. Renderizar
-no servidor está fora do escopo de um desafio de front-end com backend simulado.
+O ganho de FCP é grande e consistente (**−1,0 a −1,1 s** no celular, −240 ms no
+desktop), mas quase não aparece na nota: FCP pesa 10% e o LCP, que pesa 25%, não
+se moveu — ele depende da arte que só é baixada depois que o app renderiza. É a
+mesma conclusão da seção seguinte, agora medida dos dois lados.
+
+### O que mudou
+
+**SEO 92 → 100, nos quatro cenários.** O único audit reprovado era
+`robots-txt` ("30 errors found"): o arquivo não existia, então o rewrite de SPA
+devolvia o `index.html` e o Lighthouse tentava interpretar HTML como robots.
+`public/robots.txt` resolve. Junto entraram `<title>` e `meta description` **por
+rota**, pelo `head` do TanStack Router com `<HeadContent />` no layout raiz
+(`src/constants/seo.ts` guarda os pares, `src/lib/route-head.ts` monta a
+estrutura). O detalhe do NFT tem título genérico de propósito: o `loader` da
+rota apenas aquece o cache, sem bloquear a navegação, então o nome da peça não
+existe quando o `head` é montado — e bloquear a navegação por causa do título
+seria pagar caro por um ganho de metadado.
+
+**Esqueleto de arranque: FCP móvel 2485 ms → 1433 ms.** O `main.tsx` precisa
+aguardar o worker do MSW antes de importar a árvore do app (§6: o engine.io
+captura a referência global de `WebSocket` na avaliação do módulo). Essa espera
+valia também para o primeiro pixel. O `index.html` passou a trazer um esqueleto
+em HTML e CSS embutidos, que não depende de JavaScript nenhum e é substituído
+pelo React ao montar. Os mocks continuam ligados; o que muda é que o arranque
+deixou de ser assistido de uma página em branco.
+
+Detalhe que custou uma medição: a primeira versão do esqueleto escondia a marca
+abaixo de `md`, copiando o `SiteHeader`. **FCP exige um elemento com texto ou
+imagem** — blocos de cor chapada não contam —, e sem a marca o celular ficava
+sem candidato a primeiro paint: a métrica continuou em 2533 ms. Com a marca
+visível em todas as larguras, caiu para ~1450 ms.
+
+**Sem sourcemap no build de produção.** São ~3,8 MB que a Vercel serviria e
+ninguém baixa. Não muda métrica alguma; reduz o peso do deploy.
+
+**Prioridade na arte que vira LCP.** O elemento LCP da Início no celular é a
+primeira arte da grade; `NftGrid` marca só ela com `fetchpriority="high"`, para
+não disputar banda com as outras oito. Herói, arte do detalhe e galeria já
+tinham a dica.
+
+### Tentativa medida e descartada: `modulepreload` dos chunks do app
+
+Como a ordem de avaliação é obrigatória (MSW antes do `socket.io-client`), a
+hipótese era antecipar só o **download** — `modulepreload` busca e compila sem
+executar, então os ~336 kB (gzip) do app deixariam de esperar os 181 kB do MSW.
+Um plugin do Vite injetava as dicas a partir do grafo estático das duas entradas
+críticas.
+
+O resultado foi **pior**: Perf móvel caiu de 81 para **72/73**, com FCP em
+3780 ms e LCP em 4752 ms. A causa é que o gargalo do perfil móvel do Lighthouse
+é **banda**, não ida e volta: as dicas de alta prioridade passaram a competir com
+a própria folha de estilo, que é quem libera o primeiro paint. O plugin foi
+removido — fica registrado, como o `preload` da arte do herói descartado na
+Fase 3, para não ser tentado de novo.
+
+### Por que a Performance móvel fica em 82/83, abaixo da meta de 90
+
+Decomposição do score móvel da Início (pesos do Lighthouse 13):
+
+| Métrica | Valor | Score | Peso | Contribuição |
+| --- | ---: | ---: | ---: | ---: |
+| FCP | 1433 ms | 0,95 | 10% | 9,5 |
+| Speed Index | 1595 ms | ~1,00 | 10% | 10,0 |
+| **LCP** | **4097 ms** | **0,49** | **25%** | **12,2** |
+| TBT | 256 ms | 0,84 | 30% | 25,1 |
+| CLS | 0 | 1,00 | 25% | 25,0 |
+
+**O LCP é o teto, e ele tem duas causas somadas:**
+
+1. **A arte que vira LCP pesa 350–426 kB em PNG.** São os quatro arquivos que o
+   Figma entregou (`public/nfts/`), e a 1638 kbps um deles sozinho custa ~2 s de
+   banda. O Lighthouse não aponta economia (`image-delivery-insight` passa,
+   porque a dimensão servida bate com a exibida), mas o peso bruto está no
+   caminho crítico.
+2. **A arte só é descoberta depois que o app renderiza.** Ela não está no HTML
+   inicial — é injetada pelo React —, e o React só monta depois do worker do
+   MSW. O `lcp-discovery-insight` aponta exatamente isso.
+
+Resolver (1) exige transcodificar as artes para WebP/AVIF, o que muda o pixel
+renderizado e as baselines de regressão visual. Resolver (2) exige tirar o
+`socket.io-client` dos imports estáticos do app e represar as consultas em uma
+promessa de "mocks prontos" — mexe na camada de tempo real, que é eliminatória.
+Nenhum dos dois foi feito nesta fase: a orientação da entrega é não regredir
+fidelidade nem os eliminatórios, e a meta de performance vale 5 pontos contra os
+20 da fidelidade. Ficam registrados como o caminho, na ordem: primeiro o
+formato das artes, que é reversível e isolado.
+
+**O que já não é problema:** `bf-cache` falha por "ServiceWorker was unregistered
+while a page was in back/forward cache" — é o próprio Lighthouse desregistrando
+o worker ao fim da auditoria, e a ferramenta marca o item como *Not actionable*,
+com peso 0. `unused-javascript` (~100 kB) é quase todo interno do MSW
+(`tldts/suffix-trie`, via `tough-cookie`) e só sairia desligando os mocks, o que
+o enunciado proíbe. CLS e Best Practices estão folgados nos quatro cenários.
+
+### Acessibilidade na auditoria
+
+A11y fica em **96–98**, acima da meta de 95. O único audit reprovado é
+`target-size`, nos pontos de carrossel e do herói — desvio assumido e medido em
+§9b: o indicador e o espaçamento são os do Figma, e a área de toque real chega a
+24px por pseudo-elemento, que a auditoria estática não enxerga.
+`label-content-name-mismatch`, `page-has-heading-one` e `heading-order` saíram
+nesta fase (§9b).
 
 
-### Linha de base anterior (página placeholder)
+### Medições anteriores
 
 | Página | Perfil | Perf | A11y | BP | SEO | LCP | CLS | TBT | Fase |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| Início | desktop | 100 | 100 | 100 | 91 | 795 ms | 0.001 | 0 ms | 1 |
-| Início | mobile | **89** | 100 | 100 | 91 | 3490 ms | 0.016 | 38 ms | 1 |
-| Início | desktop | 100 | 100 | 100 | 91 | 770 ms | 0.001 | 0 ms | 2 |
-| Início | mobile | **87** | 100 | 100 | 91 | 3563 ms | 0.016 | 127 ms | 2 |
+| Início | desktop | 100 | 100 | 100 | 91 | 795 ms | 0.001 | 0 ms | 1 (placeholder) |
+| Início | mobile | 89 | 100 | 100 | 91 | 3490 ms | 0.016 | 38 ms | 1 (placeholder) |
+| Início | desktop | 100 | 100 | 100 | 91 | 770 ms | 0.001 | 0 ms | 2 (placeholder) |
+| Início | mobile | 87 | 100 | 100 | 91 | 3563 ms | 0.016 | 127 ms | 2 (placeholder) |
+| Início | desktop | 99 | 100 | 100 | 92 | 969 ms | 0.008 | 0 ms | 3 |
+| Início | mobile | 87 | 96 | 100 | 92 | 3523 ms | 0.011 | 132 ms | 3 |
+| Detalhe | desktop | 99 | 100 | 100 | 92 | 921 ms | 0.004 | 0 ms | 3 |
+| Detalhe | mobile | 82 | 100 | 100 | 92 | 3960 ms | 0 | 194 ms | 3 |
 
-As duas primeiras fases mediram uma página placeholder; a Fase 3 mede as telas
-de verdade (acima). A performance móvel já era limitada pelo mesmo ponto — o
-worker do MSW aguardado antes do primeiro render.
+As duas primeiras fases mediram uma página placeholder; a Fase 3 foi a primeira
+com as telas reais. A Fase 7 reauditou tudo do zero, na mesma máquina e no mesmo
+runner (tabela acima) — as diferenças de Lighthouse entre 13.4 e as versões
+anteriores, e a variação normal entre execuções, tornam a comparação direta com
+as fases 1–3 apenas indicativa.
+
+**Correções de performance e acessibilidade da Fase 3**, mantidas: o esqueleto
+do detalhe passou a reservar a página inteira (CLS 0,237 → 0,004); os recortes
+do catálogo viraram botões com `aria-pressed` (o `tablist` do Radix apontava
+`aria-controls` para painéis inexistentes); as seções de catálogo e promoções
+ganharam título só para leitor de tela (`heading-order`); e o botão dos pontos
+do herói passou de 10px para 24px de área de toque.
 
 ---
 
@@ -1651,6 +1927,10 @@ regra do oxlint trata `td`/`th` como controles e exige texto até dois níveis d
 profundidade. Uma célula de dados com miniatura e nome em duas linhas passa disso
 por construção, e o aviso era falso — a célula não é um controle. `td` e `th`
 entraram em `ignoreElements` (`.oxlintrc.json`), preservando o resto da regra.
+
+**`react/rules-of-hooks` desligada em `e2e/**`.** A fixture do Playwright chama
+o callback `use`, e o oxlint o lê como um React Hook fora de componente. Não há
+React na suíte de interface; a regra continua valendo em `src`, onde importa.
 
 **`src/routeTree.gen.ts` é versionado.** É gerado pelo plugin do TanStack Router
 durante `dev`/`build`, mas `pnpm build` roda `tsc -b` primeiro; versionar o

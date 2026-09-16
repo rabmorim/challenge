@@ -7,6 +7,7 @@ import { AlsoViewed } from '@/features/cart/components/also-viewed';
 import { CartBreadcrumb } from '@/features/cart/components/cart-breadcrumb';
 import { CartCardList } from '@/features/cart/components/cart-card-list';
 import { CartEmpty } from '@/features/cart/components/cart-empty';
+import { CartFocusAnchor } from '@/features/cart/components/cart-focus-anchor';
 import { CartError } from '@/features/cart/components/cart-error';
 import { CartMobileHeader } from '@/features/cart/components/cart-mobile-header';
 import { CartCardsSkeleton } from '@/features/cart/components/cart-cards-skeleton';
@@ -115,6 +116,7 @@ export function CartScreen() {
         <div className="flex flex-col gap-5 px-4 pt-6 pb-1.5 min-[414px]:px-7">
           <CartMobileHeader />
           <LiveRegion testId="cart-live-region" message={announcer.message} />
+          <CartFocusAnchor />
 
           {cart.isPending ? (
             <CartCardsSkeleton />
@@ -133,8 +135,13 @@ export function CartScreen() {
   return (
     <div className="mx-auto flex max-w-(--container-page) flex-col gap-24 px-6 pt-12 pb-16 xl:px-0">
       <div className="flex flex-col gap-3">
+        {/* O frame de 1440 abre na trilha, sem título — mas uma página sem `h1`
+            deixa quem navega por marcos sem o nome da tela. O título existe só
+            para o leitor de tela; o frame de 414 o desenha (`CartMobileHeader`). */}
+        <h1 className="sr-only">{CART_COPY.title}</h1>
         <CartBreadcrumb />
         <LiveRegion testId="cart-live-region" message={announcer.message} />
+        <CartFocusAnchor />
 
         {cart.isEmpty ? (
           <CartEmpty />

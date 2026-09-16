@@ -1,6 +1,7 @@
 import { MinusIcon, PlusIcon } from 'lucide-react';
 import { useId } from 'react';
 
+import { FOCUS_RING_CLASS } from '@/constants/a11y';
 import { CART_COPY } from '@/features/cart/constants/cart-copy';
 import { MIN_ITEM_QUANTITY } from '@/features/cart/constants/cart';
 import { maxCartQuantity } from '@/features/cart/lib/cart-quantity';
@@ -69,6 +70,7 @@ export function CartStepper({ item, isBusy, onChange, variant = 'default' }: Car
         }}
         className={cn(
           'bg-transparent text-center outline-none [appearance:textfield] disabled:opacity-60 [&::-webkit-inner-spin-button]:appearance-none',
+          FOCUS_RING_CLASS,
           isCompact ? 'w-6 text-[15px]' : 'text-body-lg w-8',
         )}
       />
